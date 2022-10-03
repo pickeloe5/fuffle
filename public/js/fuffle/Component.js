@@ -41,7 +41,7 @@ class Component extends ComponentBase {
   }
 
   onConstructed() {
-    this.bake.call(this.#observer.proxy)
+    this.#observer.readOnce(this.bake)
   }
 
   onConnected() {

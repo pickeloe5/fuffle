@@ -1,107 +1,67 @@
 export default class Observer {
 
   #target = null
+
+  #proxy = null
   #reads = []
-  proxy = null
 
   constructor(target) {
     this.#target = target
-    this.proxy = this.#makeFrontProxy()
+    this.#proxy = this.#makeProxy(false).proxy
   }
 
-  read(fun, record) {
-    const observation = this.#makeBackProxy()
-    const result = fun.call(observation.proxy, observation.proxy)
-    const gets = [...observation.gets],
-      sets = [...observation.sets]
-
-    if (record)
-      record.gets = gets
-    else if (gets.length)
-      this.#reads.push({fun, gets})
-
-    this.#onWrite(sets)
-    return result
+  #write(properties) {
+    for (const read of this.#reads) {
+      if (!read.properties.some(name =>
+        properties.includes(name)))
+          continue
+      const {reads} = this.#run(read.function, ...read.arguments)
+      read.properties = reads
+    }
   }
 
-  render(fun, gets) {
-    const {proxy, sets} = this.#makeBackProxy()
-    const result = fun.call(proxy)
-    this.#reads.push({fun, gets})
-    this.#onWrite([...sets])
-    return result
+  #run(fun, ...args) {
+    const {proxy, reads} = this.#makeProxy()
+    const result = fun.call(proxy, ...args)
+    return {result, reads}
   }
 
-  reread(records = this.#reads) {
-    for (const it of records)
-      this.read(it.fun, it)
-  }
-
-  write(fun, ...args) {
-    const {proxy, sets} = this.#makeBackProxy()
-    const result = fun.call(proxy, proxy, ...args)
-    this.#onWrite([...sets])
-    return result
-  }
-
-  makeWriter(fun) {
-    return function() {
-      return this.write(fun, ...arguments)
-    }.bind(this)
-  }
-
-  #onWrite(sets) {
-    if (!this.#reads.length)
-      return;
-
-    this.reread(this.#reads.filter(record => {
-      if (!record.gets)
-        return true
-      if (!sets.length)
-        return false
-      return record.gets.some(name =>
-        sets.includes(name))
-    }))
-  }
-
-  #makeBackProxy() {
-    const gets = [], sets = []
-    const front = this.proxy
-    const proxy = new Proxy(this.#target, {
-
-      get(target, property, receiver) {
-        if (!gets.includes(property))
-          gets.push(property)
-        let result = Reflect.get(target, property, receiver)
-        if (typeof result === 'function')
-          result = result.bind(front)
-        return result
-      },
-
-      set(target, property, value, receiver) {
-        if (!sets.includes(property))
-          sets.push(property)
-        return Reflect.set(target, property, value, receiver)
-      }
+  read(fun, ...args) {
+    const {result, reads} = this.#run(fun, ...args)
+    this.#reads.push({
+      function: fun,
+      arguments,
+      properties: reads
     })
-    return {proxy, gets, sets}
+    return result
   }
 
-  #makeFrontProxy() {
-    return new Proxy(this.#target, {
+  readOnce(fun, ...args) {
+    return fun.call(this.#proxy, ...args)
+  }
 
-      get: (target, property, receiver) => {
-        let result = Reflect.get(target, property, receiver)
-        if (typeof result === 'function')
-          result = result.bind(receiver)
-        return result
-      },
-
+  #makeProxy(trackReads = true, trackWrites) {
+    const reads = [], writes = []
+    const traps = {
       set: (target, property, value, receiver) => {
         const result = Reflect.set(target, property, value, receiver)
-        this.#onWrite([property])
+        if (trackWrites) {
+          if (!writes.includes(property))
+            writes.push(property)
+        } else {
+          this.#write([property])
+        }
         return result
       }
-    })
+    }
+    if (trackReads) traps.get = (target, property, receiver) => {
+      const result = Reflect.get(target, property, receiver)
+      if (!reads.includes(property))
+        reads.push(property)
+      return result
+    }
+    const proxy = new Proxy(this.#target, traps)
+    return {proxy, reads, writes}
   }
+
 }

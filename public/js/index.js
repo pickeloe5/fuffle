@@ -60,3 +60,29 @@ class ObserverDemo extends Fuffle.Component {
 
 }
 ObserverDemo.defineElement('demo-observer')
+
+class ConditionalDemo extends Fuffle.Component {
+
+  static template = document.getElementById('demo-conditional-template')
+
+  condition = null
+
+  bake() {
+    const $output = this.$.query('[data-key=output]')
+    this.condition = new Fuffle.ConditionalNode($output.node, true)
+    this.$.node.insertBefore(this.condition.bookmark, $output.node)
+
+    this.$.query('button').on('click', () => {
+      this.condition.active = !this.condition.active
+    })
+
+    this.$.query('.code')
+      .withText(ConditionalDemo.toString())
+  }
+
+  render() {
+
+  }
+
+}
+ConditionalDemo.defineElement('demo-conditional')
