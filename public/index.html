@@ -1,0 +1,41 @@
+<html>
+  <head>
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+    <title>Fuffle</title>
+    <script type='module' src='/js/index.js'></script>
+  </head>
+  <body>
+    <template data-id='demo-template'>
+      Goodbye, world.
+    </template>
+    <template data-id='demo-template-binding'>
+      <span data-key='output'></span>
+      <input type='text' data-key='input' />
+    </template>
+    <template data-id='demo-template-conditions'>
+      <span data-key='output'>Goodbye, world.</span>
+      <button data-key='input'>Toggle</button>
+    </template>
+    <demo-javascript></demo-javascript>
+    <br />
+    <demo-javascript-jquery></demo-javascript-jquery>
+    <br />
+    <demo-javascript-util></demo-javascript-util>
+    <br />
+    <demo-template></demo-template>
+    <br />
+    <demo-data-binding></demo-data-binding>
+    <br />
+    <demo-template-binding></demo-template-binding>
+    <br />
+    <demo-conditional-rendering></demo-conditional-rendering>
+    <br />
+    <demo-condition-binding></demo-condition-binding>
+    <br />
+    <demo-template-conditions></demo-template-conditions>
+    <br />
+    <demo-iterative-rendering></demo-iterative-rendering>
+    <br />
+    <demo-iterative-observer></demo-iterative-observer>
+  </body>
+</html>
