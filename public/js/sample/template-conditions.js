@@ -3,7 +3,7 @@ import {Util, Component, ConditionalNode} from '/js/fuffle/index.js'
 ; (class extends Component {
 
   static template = document.querySelector(
-    'template[data-id="demo-template-conditions"]')
+    'template[data-id="sample-template-conditions"]')
 
   #output = null
   value = true
@@ -25,4 +25,4 @@ import {Util, Component, ConditionalNode} from '/js/fuffle/index.js'
   #onClickInput = () => {
     this.#output.active = this.value = !this.value
   }
-}).defineElement('demo-template-conditions')
+}).defineElement('sample-template-conditions')

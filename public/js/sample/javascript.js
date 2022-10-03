@@ -1,4 +1,3 @@
-import './jquery.js'
 import {Component} from '/js/fuffle/index.js'
 
 ; (class extends Component {
@@ -6,8 +5,7 @@ import {Component} from '/js/fuffle/index.js'
   constructor(element) {
     super(element)
 
-    $(element)
-      .text('Goodbye, world.')
+    element.textContent = 'Goodbye, world.'
 
   }
-}).defineElement('demo-javascript-jquery')
+}).defineElement('sample-javascript')

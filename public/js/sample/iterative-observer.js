@@ -47,4 +47,4 @@ import {Component, Observer, IterativeNode} from '/js/fuffle/index.js'
     this.output.value[index].write(it => {it.text += '.'})
   }
 
-}).defineElement('demo-iterative-observer')
+}).defineElement('sample-iterative-observer')

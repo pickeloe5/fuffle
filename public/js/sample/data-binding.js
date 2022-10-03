@@ -34,4 +34,4 @@ import {Component, Observer} from '/js/fuffle/index.js'
     this.value = e.target.value
   }
 
-}).defineElement('demo-data-binding')
+}).defineElement('sample-data-binding')

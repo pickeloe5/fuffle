@@ -9,4 +9,4 @@ import {$, Component} from '/js/fuffle/index.js'
       .withText('Goodbye, world.')
 
   }
-}).defineElement('demo-javascript-util')
+}).defineElement('sample-javascript-util')

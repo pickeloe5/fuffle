@@ -45,4 +45,4 @@ import {Component, IterativeNode} from '/js/fuffle/index.js'
     this.output.value[index] += '.'
   }
 
-}).defineElement('demo-iterative-rendering')
+}).defineElement('sample-iterative-rendering')

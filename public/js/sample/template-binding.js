@@ -3,7 +3,7 @@ import {Util, Component, Observer} from '/js/fuffle/index.js'
 ; (class extends Component {
 
   static template = document.querySelector(
-    'template[data-id="demo-template-binding"]')
+    'template[data-id="sample-template-binding"]')
 
   #observer = new Observer(this)
 
@@ -34,4 +34,4 @@ import {Util, Component, Observer} from '/js/fuffle/index.js'
     this.value = e.target.value
   }
 
-}).defineElement('demo-template-binding')
+}).defineElement('sample-template-binding')

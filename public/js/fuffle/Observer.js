@@ -2,21 +2,24 @@ export default class Observer {
 
   #target = null
   #reads = []
+  proxy = null
 
   constructor(target) {
     this.#target = target
+    this.proxy = this.#makeFrontProxy()
   }
 
   render(fun, gets) {
-    const {proxy, sets} = this.#observe()
-    fun.call(proxy)
+    const {proxy, sets} = this.#makeBackProxy()
+    const result = fun.call(proxy)
     this.#reads.push({fun, gets})
     this.#onWrite([...sets])
+    return result
   }
 
-  read(fun, record) {
-    const observation = this.#observe()
-    fun.call(observation.proxy, observation.proxy)
+  read(fun, record, target) {
+    const observation = this.#makeBackProxy(target)
+    const result = fun.call(observation.proxy, observation.proxy)
     const gets = [...observation.gets],
       sets = [...observation.sets]
 
@@ -26,6 +29,7 @@ export default class Observer {
       this.#reads.push({fun, gets})
 
     this.#onWrite(sets)
+    return result
   }
 
   reread(records = this.#reads) {
@@ -48,21 +52,21 @@ export default class Observer {
   }
 
   makeWriter(fun) {
-    const observer = this
     return function() {
-      observer.write(fun, ...arguments)
-    }
+      return this.write(fun, ...arguments)
+    }.bind(this)
   }
 
   write(fun, ...args) {
-    const {proxy, sets} = this.#observe()
-    fun.call(proxy, proxy, ...args)
+    const {proxy, sets} = this.#makeBackProxy()
+    const result = fun.call(proxy, proxy, ...args)
     this.#onWrite([...sets])
+    return result
   }
 
-  #observe() {
+  #makeBackProxy(target = this.#target) {
     const gets = [], sets = []
-    const proxy = new Proxy(this.#target, {
+    const proxy = new Proxy(target, {
 
       get(target, property, receiver) {
         if (!gets.includes(property))
@@ -79,4 +83,21 @@ export default class Observer {
     return {proxy, gets, sets}
   }
 
+  #makeFrontProxy() {
+    return new Proxy(this.#target, {
+
+      get: (target, property, receiver) => {
+        let result = Reflect.get(target, property, receiver)
+        if (typeof result === 'function')
+          result = result.bind(receiver)
+        return result
+      },
+
+      set: (target, property, value, receiver) => {
+        const result = Reflect.set(target, property, value, receiver)
+        this.#onWrite([property])
+        return result
+      }
+    })
+  }
 }

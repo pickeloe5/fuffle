@@ -26,4 +26,4 @@ import {Component, ConditionalNode} from '/js/fuffle/index.js'
     this.#output.active = this.#value = !this.#value
   }
 
-}).defineElement('demo-conditional-rendering')
+}).defineElement('sample-conditional-rendering')

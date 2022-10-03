@@ -3,7 +3,7 @@ import {Util, Component} from '/js/fuffle/index.js'
 ; (class extends Component {
 
   static template = document.querySelector(
-    'template[data-id="demo-template"]')
+    'template[data-id="sample-template"]')
 
   constructor(element) {
     super(element)
@@ -11,4 +11,4 @@ import {Util, Component} from '/js/fuffle/index.js'
     Util.appendTemplate(element, this.constructor.template)
 
   }
-}).defineElement('demo-template')
+}).defineElement('sample-template')

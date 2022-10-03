@@ -32,4 +32,4 @@ import {Component, Observer, ConditionalNode} from '/js/fuffle/index.js'
     this.value = !this.value
   }
 
-}).defineElement('demo-condition-binding')
+}).defineElement('sample-condition-binding')
