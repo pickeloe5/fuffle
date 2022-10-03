@@ -9,16 +9,8 @@ export default class Observer {
     this.proxy = this.#makeFrontProxy()
   }
 
-  render(fun, gets) {
-    const {proxy, sets} = this.#makeBackProxy()
-    const result = fun.call(proxy)
-    this.#reads.push({fun, gets})
-    this.#onWrite([...sets])
-    return result
-  }
-
-  read(fun, record, target) {
-    const observation = this.#makeBackProxy(target)
+  read(fun, record) {
+    const observation = this.#makeBackProxy()
     const result = fun.call(observation.proxy, observation.proxy)
     const gets = [...observation.gets],
       sets = [...observation.sets]
@@ -32,9 +24,30 @@ export default class Observer {
     return result
   }
 
+  render(fun, gets) {
+    const {proxy, sets} = this.#makeBackProxy()
+    const result = fun.call(proxy)
+    this.#reads.push({fun, gets})
+    this.#onWrite([...sets])
+    return result
+  }
+
   reread(records = this.#reads) {
     for (const it of records)
       this.read(it.fun, it)
+  }
+
+  write(fun, ...args) {
+    const {proxy, sets} = this.#makeBackProxy()
+    const result = fun.call(proxy, proxy, ...args)
+    this.#onWrite([...sets])
+    return result
+  }
+
+  makeWriter(fun) {
+    return function() {
+      return this.write(fun, ...arguments)
+    }.bind(this)
   }
 
   #onWrite(sets) {
@@ -51,27 +64,18 @@ export default class Observer {
     }))
   }
 
-  makeWriter(fun) {
-    return function() {
-      return this.write(fun, ...arguments)
-    }.bind(this)
-  }
-
-  write(fun, ...args) {
-    const {proxy, sets} = this.#makeBackProxy()
-    const result = fun.call(proxy, proxy, ...args)
-    this.#onWrite([...sets])
-    return result
-  }
-
-  #makeBackProxy(target = this.#target) {
+  #makeBackProxy() {
     const gets = [], sets = []
-    const proxy = new Proxy(target, {
+    const front = this.proxy
+    const proxy = new Proxy(this.#target, {
 
       get(target, property, receiver) {
         if (!gets.includes(property))
           gets.push(property)
-        return Reflect.get(target, property, receiver)
+        let result = Reflect.get(target, property, receiver)
+        if (typeof result === 'function')
+          result = result.bind(front)
+        return result
       },
 
       set(target, property, value, receiver) {

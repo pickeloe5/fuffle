@@ -8,7 +8,7 @@ const CODE_STYLE = {
   backgroundColor: '#0001'
 }
 
-class BasicDemo extends Fuffle.Component {
+class BasicDemo extends Fuffle.ComponentBase {
 
   constructor(element) {
     super(element)
@@ -20,7 +20,7 @@ class BasicDemo extends Fuffle.Component {
 }
 BasicDemo.defineElement('demo-basic')
 
-class UtilDemo extends Fuffle.Component {
+class UtilDemo extends Fuffle.ComponentBase {
 
   static template = document.getElementById('demo-util-template')
 
@@ -40,34 +40,22 @@ class ObserverDemo extends Fuffle.Component {
 
   static template = document.getElementById('demo-observer-template')
 
-  #observer = new Fuffle.Observer(this)
-
-  $output = null
   $input = null
-
   value = 'Observer Demo:'
 
-  constructor(element) {
-    super(element)
-    Fuffle.Util.appendTemplate(element, ObserverDemo.template)
+  bake() {
+    this.$input = this.$.query('input')
+      .on('keyup', e => {this.value = e.target.value})
 
-    const $element = $(element)
-    this.$output = $element.query('[data-key=output]')
-    this.$input = $element.query('input')
-    $element.query('.code').withText(ObserverDemo.toString())
-
-    this.#observer.read(this.#renderValue)
-    this.$input.on('keyup', this.#observer.proxy.updateValue)
+    this.$.query('.code')
+      .withText(ObserverDemo.toString())
   }
 
-  #renderValue() {
-    const {value} = this
-    this.$output.withText(value)
-    this.$input.withValue(value)
-  }
+  render() {
+    this.$.query('[data-key=output]')
+      .withText(this.value)
 
-  updateValue(e) {
-    this.value = e.target.value
+    this.$input.withValue(this.value)
   }
 
 }
