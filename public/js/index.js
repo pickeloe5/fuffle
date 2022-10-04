@@ -1,5 +1,5 @@
 import * as Fuffle from '/js/fuffle/index.js'
-const {$} = Fuffle
+const {$, FuffleIf} = Fuffle
 
 const CODE_STYLE = {
   display: 'block',
@@ -65,23 +65,14 @@ class ConditionalDemo extends Fuffle.Component {
 
   static template = document.getElementById('demo-conditional-template')
 
-  condition = null
-
   bake() {
-    const $output = this.$.query('[data-key=output]')
-    this.condition = new Fuffle.ConditionalNode($output.node, true)
-    this.$.node.insertBefore(this.condition.bookmark, $output.node)
+    const $output = this.$.query('fuffle-if')
 
-    this.$.query('button').on('click', () => {
-      this.condition.active = !this.condition.active
-    })
+    this.$.query('button')
+      .on('click', () => {$output.component.toggle()})
 
     this.$.query('.code')
       .withText(ConditionalDemo.toString())
-  }
-
-  render() {
-
   }
 
 }

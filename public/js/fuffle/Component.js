@@ -7,10 +7,11 @@ class ComponentBase {
 
   static defineElement(tagName) {
     const ComponentImpl = this
-    customElements.define(tagName,
-      class extends ComponentElement {
-        static Component = ComponentImpl
-      })
+    const ElementImpl = class extends ComponentElement {
+      static Component = ComponentImpl
+    }
+    customElements.define(tagName, ElementImpl)
+    return ElementImpl
   }
 
   constructor(element) {
@@ -22,6 +23,10 @@ class ComponentBase {
   }
 
   onConnected() {
+
+  }
+
+  onChanged(name, value, previousValue) {
 
   }
 

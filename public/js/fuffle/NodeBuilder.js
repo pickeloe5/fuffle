@@ -14,8 +14,27 @@ class NodeBuilder {
 
   node = null
 
+  get parent() {
+    const {parentNode} = this.node
+    if (!parentNode)
+      return null
+    return new NodeBuilder(parentNode)
+  }
+
+  get attributes() {
+    return this.node.attributes
+  }
+
+  get component() {
+    return this.node.fuffleComponent
+  }
+
   constructor(node) {
     this.node = node
+  }
+
+  getAttribute(name) {
+    return this.node.getAttribute(name)
   }
 
   on(eventName, handler) {
@@ -26,6 +45,17 @@ class NodeBuilder {
   query(selector) {
     const child = this.node.querySelector(selector)
     return !child ? null : new NodeBuilder(child)
+  }
+
+  withSibling(child) {
+    this.node.parentNode?.insertBefore(
+      NodeBuilder.resolve(child), this.node)
+    return this
+  }
+
+  withAttribute(name, value) {
+    this.node.setAttribute(name, value)
+    return this
   }
 
   withChild(...children) {
@@ -58,6 +88,15 @@ class NodeBuilder {
     Object.assign(this.node.style, style)
     return this
   }
+
+  shadow() {
+    return new NodeBuilder(this.node.attachShadow({mode: 'closed'}))
+  }
+
+  remove() {
+    this.node.parentNode?.removeChild(this.node)
+    return this
+  }
 }
 
 const $ = node =>
@@ -68,6 +107,9 @@ $.create = tag =>
 
 $.br = () =>
   new NodeBuilder(document.createElement('br'))
+
+$.comment = () =>
+  new NodeBuilder(new Comment())
 
 export default NodeBuilder
 export { $ }
