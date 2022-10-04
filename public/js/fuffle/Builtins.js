@@ -1,49 +1,50 @@
 import {ComponentBase} from './Component.js'
+import {ArrayObserver} from './Observer.js'
 
 class FuffleIf extends ComponentBase {
 
-  static Attribute = {CONDITION: 'condition'}
+  static Attribute = {VALUE: 'data-value'}
   static Element = FuffleIf.defineElement('fuffle-if')
 
   #element = null
   #shadow = null
   #children = []
-  #renderedCondition = false
+  #renderedValue = false
 
   constructor(element) {
     super(element)
     this.#element = element
     this.#shadow = element.attachShadow({mode: 'closed'})
     this.#children = [...element.childNodes].map(it => it.cloneNode(true))
-    this.#insert()
+    this.#render()
   }
 
   #insert() {
-    if (this.#renderedCondition)
+    if (this.#renderedValue)
       return;
 
     for (const child of this.#children)
       this.#shadow.appendChild(child)
 
-    this.#renderedCondition = true
+    this.#renderedValue = true
   }
 
   #remove() {
-    if (!this.#renderedCondition)
+    if (!this.#renderedValue)
       return;
 
     for (const child of this.#children)
       this.#shadow.removeChild(child)
 
-    this.#renderedCondition = false
+    this.#renderedValue = false
   }
 
-  get #conditionValue() {
+  get #value() {
     return this.#element.getAttribute(
-      FuffleIf.Attribute.CONDITION)
+      FuffleIf.Attribute.VALUE)
   }
 
-  #renderCondition(value = this.conditionValue) {
+  #render(value = this.value) {
     if (value === 'false')
       this.#remove()
     else this.#insert()
@@ -51,15 +52,57 @@ class FuffleIf extends ComponentBase {
 
   toggle() {
     this.#element.setAttribute(
-      FuffleIf.Attribute.CONDITION,
-      this.#renderedCondition ? 'false' : '')
+      FuffleIf.Attribute.VALUE,
+      this.#renderedValue ? 'false' : '')
   }
 
   onChanged(name, value) {
-    if (name === FuffleIf.Attribute.CONDITION)
-      this.#renderCondition(value)
+    if (name === FuffleIf.Attribute.VALUE)
+      this.#render(value)
   }
 
 }
 
-export {FuffleIf}
+class FuffleFor extends ComponentBase {
+
+  static Element = FuffleFor.defineElement('fuffle-for')
+
+  #value = []
+  #observer = null
+  #element = null
+  #shadow = null
+  #children = []
+
+  value = null
+
+  constructor(element) {
+    super(element)
+    this.#element = element
+    this.#shadow = element.attachShadow({mode: 'closed'})
+    this.#observer = new ArrayObserver(this.#value)
+      .onPush(this.#insert)
+      .onPop(this.#remove)
+      .onSet(this.#update)
+    this.value = this.#observer.proxy
+  }
+
+  #insert = value => {
+    const children = [...this.#element.childNodes].map(it => it.cloneNode(true))
+    // fire event to update children
+    this.#children.push(children)
+    for (const child of children)
+      this.#shadow.appendChild(child)
+  }
+
+  #remove = () => {
+    for (const child of this.#children.pop())
+      this.#shadow.removeChild(child)
+  }
+
+  #update = (value, index) => {
+    // fire event to update children
+  }
+
+}
+
+export {FuffleIf, FuffleFor}

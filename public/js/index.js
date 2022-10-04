@@ -66,10 +66,8 @@ class ConditionalDemo extends Fuffle.Component {
   static template = document.getElementById('demo-conditional-template')
 
   bake() {
-    const $output = this.$.query('fuffle-if')
-
-    this.$.query('button')
-      .on('click', () => {$output.component.toggle()})
+    this.$.query('button').on('click', () => {
+      this.$.query('fuffle-if').component.toggle()})
 
     this.$.query('.code')
       .withText(ConditionalDemo.toString())
@@ -77,3 +75,27 @@ class ConditionalDemo extends Fuffle.Component {
 
 }
 ConditionalDemo.defineElement('demo-conditional')
+
+class IterativeDemo extends Fuffle.Component {
+
+  static template = document.getElementById('demo-iterative-template')
+
+  bake() {
+    const forLoop = this.$.query('fuffle-for').component
+    forLoop.value.push(null)
+
+    this.$.query('[data-key=push]').on('click', () => {
+      forLoop.value.push(null)
+    })
+    this.$.query('[data-key=pop]').on('click', () => {
+      forLoop.value.pop()
+    })
+    this.$.query('[data-key=update]')?.on('click', () => {
+
+    })
+
+    this.$.query('.code').withText(IterativeDemo.toString())
+  }
+
+}
+IterativeDemo.defineElement('demo-iterative')

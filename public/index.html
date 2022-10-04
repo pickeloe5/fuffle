@@ -23,13 +23,21 @@
       <span class='code'></span>
     </template>
     <template id='demo-conditional-template'>
-      <fuffle-if condition>Conditional Demo:</fuffle-if> <br />
+      <fuffle-if data-value>Conditional Demo:</fuffle-if> <br />
       <button>Toggle</button>
+      <span class='code'></span>
+    </template>
+    <template id='demo-iterative-template'>
+      <fuffle-for>Iterative Demo:</fuffle-for> <br />
+      <button data-key='push'>Push</button>
+      <button data-key='pop'>Pop</button>
+      <!-- <button data-key='update'>Update</button> -->
       <span class='code'></span>
     </template>
     <demo-basic></demo-basic>
     <demo-util></demo-util>
     <demo-observer></demo-observer>
     <demo-conditional></demo-conditional>
+    <demo-iterative></demo-iterative>
   </body>
 </html>

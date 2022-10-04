@@ -1,13 +1,12 @@
 import * as Util from './util.js'
 import NodeBuilder, {$} from './NodeBuilder.js'
 import Component, {ComponentBase} from './Component.js'
-import Observer from './Observer.js'
-import IterativeNode from './IterativeNode.js'
-import {FuffleIf} from './Builtins.js'
+import Observer, {ArrayObserver} from './Observer.js'
+import {FuffleIf, FuffleFor} from './Builtins.js'
 
 export {
   Util, NodeBuilder, $,
   Component, ComponentBase,
-  Observer, IterativeNode,
-  FuffleIf
+  Observer, ArrayObserver,
+  FuffleIf, FuffleFor
 }

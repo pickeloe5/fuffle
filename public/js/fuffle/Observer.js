@@ -65,3 +65,54 @@ export default class Observer {
   }
 
 }
+
+export class ArrayObserver {
+
+  #value = []
+  #length = 0
+  proxy = null
+
+  constructor(value = []) {
+    this.#value = value
+    this.#length = value.length
+    this.proxy = this.#makeProxy()
+  }
+
+  #onPush = (value, index) => {}
+  onPush(fun) {
+    this.#onPush = fun
+    return this
+  }
+
+  #onPop = (value, index) => {}
+  onPop(fun) {
+    this.#onPop = fun
+    return this
+  }
+
+  #onSet = (value, index) => {}
+  onSet(fun) {
+    this.#onSet = fun
+    return this
+  }
+
+  #makeProxy() {
+    return new Proxy(this.#value, {
+      set: (target, property, value, receiver) => {
+        const result = Reflect.set(target, property, value, receiver)
+        let index
+        if (property === 'length') {
+          for (let i = this.#length; i < value; i++)
+            this.#onPush?.(this.#value[i], i)
+          for (let i = this.#length - 1; i >= value; i--)
+            this.#onPop?.(this.#value[i], i)
+          this.#length = value
+        } else if ((index = parseInt(property)) !== NaN) {
+          this.#onSet?.(value, index)
+        }
+        return result
+      }
+    })
+  }
+
+}
