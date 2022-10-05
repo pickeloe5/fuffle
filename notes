@@ -1,0 +1,5 @@
+we should ensure we use the DOM lifecycle correctly:
+ - when do we add children?
+ - when can we expect children to be added?
+ - how can we access component methods from element instances?
+ - etc.

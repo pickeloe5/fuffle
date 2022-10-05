@@ -18,14 +18,17 @@
       <span class='code'></span>
     </template>
     <template id='demo-observer-template'>
-      <span data-key='output'></span> <br />
-      <input type='text' />
-      <span class='code'></span>
+      <span fuffle-text>${this.value}</span> <br />
+      <input type='text' fuffle:value='this.value'
+        fuffle-on:keyup='this.onKeyUp'/>
+      <span class='code' fuffle-text
+        >${this.constructor.toString()}</span>
     </template>
     <template id='demo-conditional-template'>
-      <fuffle-if data-value>Conditional Demo:</fuffle-if> <br />
-      <button>Toggle</button>
-      <span class='code'></span>
+      <fuffle-if fuffle:data-value='this.value'>Conditional Demo:</fuffle-if>
+      <br />
+      <button fuffle-on:click='this.onClickToggle'>Toggle</button>
+      <span class='code' fuffle-text>${this.constructor.toString()}</span>
     </template>
     <template id='demo-iterative-template'>
       <fuffle-for>Iterative Demo:</fuffle-for> <br />

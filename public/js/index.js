@@ -40,22 +40,10 @@ class ObserverDemo extends Fuffle.Component {
 
   static template = document.getElementById('demo-observer-template')
 
-  $input = null
   value = 'Observer Demo:'
 
-  bake() {
-    this.$input = this.$.query('input')
-      .on('keyup', e => {this.value = e.target.value})
-
-    this.$.query('.code')
-      .withText(ObserverDemo.toString())
-  }
-
-  render() {
-    this.$.query('[data-key=output]')
-      .withText(this.value)
-
-    this.$input.withValue(this.value)
+  onKeyUp(e) {
+    this.value = e.target.value
   }
 
 }
@@ -65,12 +53,10 @@ class ConditionalDemo extends Fuffle.Component {
 
   static template = document.getElementById('demo-conditional-template')
 
-  bake() {
-    this.$.query('button').on('click', () => {
-      this.$.query('fuffle-if').component.toggle()})
+  value = true
 
-    this.$.query('.code')
-      .withText(ConditionalDemo.toString())
+  onClickToggle() {
+    this.value = !this.value
   }
 
 }

@@ -1,7 +1,8 @@
 import ComponentElement from './ComponentElement.js'
 import Observer from './Observer.js'
 import NodeBuilder from './NodeBuilder.js'
-import {appendTemplate} from './Util.js'
+import Template from './Template.js'
+import {cloneTemplate} from './Util.js'
 
 class ComponentBase {
 
@@ -40,12 +41,11 @@ class Component extends ComponentBase {
   constructor(element) {
     super(element)
     this.$ = new NodeBuilder(element)
-
-    if (this.constructor.template)
-      appendTemplate(this.$.node, this.constructor.template)
   }
 
   onConstructed() {
+    if (this.constructor.template)
+      Template.bake(this.constructor.template, this.#observer, this.$.node)
     this.#observer.readOnce(this.bake)
   }
 

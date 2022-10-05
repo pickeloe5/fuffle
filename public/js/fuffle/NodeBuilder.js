@@ -21,6 +21,11 @@ class NodeBuilder {
     return new NodeBuilder(parentNode)
   }
 
+  get children() {
+    return [...this.node.childNodes]
+      .map(it => new NodeBuilder(it))
+  }
+
   get attributes() {
     return this.node.attributes
   }

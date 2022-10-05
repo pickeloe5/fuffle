@@ -42,7 +42,17 @@ export default class Observer {
 
   #makeProxy(trackReads = true, trackWrites) {
     const reads = [], writes = []
-    const traps = {
+    const proxy = new Proxy(this.#target, {
+      get: (target, property, receiver) => {
+        let result = Reflect.get(target, property, receiver)
+        if (typeof result === 'function' && target.hasOwnProperty(property))
+          result = result.bind(receiver)
+        if (trackReads) {
+          if (!reads.includes(property))
+            reads.push(property)
+        }
+        return result
+      },
       set: (target, property, value, receiver) => {
         const result = Reflect.set(target, property, value, receiver)
         if (trackWrites) {
@@ -53,14 +63,7 @@ export default class Observer {
         }
         return result
       }
-    }
-    if (trackReads) traps.get = (target, property, receiver) => {
-      const result = Reflect.get(target, property, receiver)
-      if (!reads.includes(property))
-        reads.push(property)
-      return result
-    }
-    const proxy = new Proxy(this.#target, traps)
+    })
     return {proxy, reads, writes}
   }
 
@@ -96,20 +99,28 @@ export class ArrayObserver {
     return this
   }
 
+  #onSetLength(length) {
+
+    for (let i = this.#length; i < length; i++)
+      this.#onPush?.(this.#value[i], i)
+
+    for (let i = this.#length - 1; i >= length; i--)
+      this.#onPop?.(this.#value[i], i)
+
+    this.#length = length
+  }
+
   #makeProxy() {
     return new Proxy(this.#value, {
       set: (target, property, value, receiver) => {
         const result = Reflect.set(target, property, value, receiver)
         let index
-        if (property === 'length') {
-          for (let i = this.#length; i < value; i++)
-            this.#onPush?.(this.#value[i], i)
-          for (let i = this.#length - 1; i >= value; i--)
-            this.#onPop?.(this.#value[i], i)
-          this.#length = value
-        } else if ((index = parseInt(property)) !== NaN) {
+
+        if (property === 'length')
+          this.#onSetLength(value)
+        else if ((index = parseInt(property)) !== NaN)
           this.#onSet?.(value, index)
-        }
+
         return result
       }
     })
