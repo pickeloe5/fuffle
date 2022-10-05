@@ -1,12 +1,17 @@
 export default class Observer {
 
   #target = null
-
   #proxy = null
   #reads = []
+  #arrays = {}
 
-  constructor(target) {
+  constructor(target = {}) {
     this.#target = target
+
+    for (const key in target)
+      if (Array.isArray(target[key]))
+        this.#arrays[key] = new ArrayObserver(target[key])
+
     this.#proxy = this.#makeProxy(false).proxy
   }
 
@@ -44,7 +49,13 @@ export default class Observer {
     const reads = [], writes = []
     const proxy = new Proxy(this.#target, {
       get: (target, property, receiver) => {
-        let result = Reflect.get(target, property, receiver)
+
+        let result
+        if (this.#arrays.hasOwnProperty(property))
+          result = this.#arrays[property].proxy
+        else
+          result = Reflect.get(target, property, receiver)
+
         if (typeof result === 'function' && target.hasOwnProperty(property))
           result = result.bind(receiver)
         if (trackReads) {
@@ -55,6 +66,10 @@ export default class Observer {
       },
       set: (target, property, value, receiver) => {
         const result = Reflect.set(target, property, value, receiver)
+
+        if (Array.isArray(value))
+          this.#arrays[property] = new ArrayObserver(value)
+
         if (trackWrites) {
           if (!writes.includes(property))
             writes.push(property)
@@ -71,13 +86,14 @@ export default class Observer {
 
 export class ArrayObserver {
 
-  #value = []
+  value = []
   #length = 0
   proxy = null
 
   constructor(value = []) {
-    this.#value = value
-    this.#length = value.length
+    this.value = [...value]
+    this.value.observer = this
+    this.#length = this.value.length
     this.proxy = this.#makeProxy()
   }
 
@@ -99,19 +115,23 @@ export class ArrayObserver {
     return this
   }
 
-  #onSetLength(length) {
+  withValue(value) {
+    this.proxy.push(...value)
+    return this
+  }
 
+  #onSetLength(length) {
     for (let i = this.#length; i < length; i++)
-      this.#onPush?.(this.#value[i], i)
+      this.#onPush?.(this.value[i], i)
 
     for (let i = this.#length - 1; i >= length; i--)
-      this.#onPop?.(this.#value[i], i)
+      this.#onPop?.(this.value[i], i)
 
     this.#length = length
   }
 
   #makeProxy() {
-    return new Proxy(this.#value, {
+    return new Proxy(this.value, {
       set: (target, property, value, receiver) => {
         const result = Reflect.set(target, property, value, receiver)
         let index

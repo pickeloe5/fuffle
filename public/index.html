@@ -31,11 +31,11 @@
       <span class='code' fuffle-text>${this.constructor.toString()}</span>
     </template>
     <template id='demo-iterative-template'>
-      <fuffle-for>Iterative Demo:</fuffle-for> <br />
-      <button data-key='push'>Push</button>
-      <button data-key='pop'>Pop</button>
-      <!-- <button data-key='update'>Update</button> -->
-      <span class='code'></span>
+      <fuffle-for value='this.value'>Iterative Demo:</fuffle-for> <br />
+      <button fuffle-on:click='this.onClickPush'>Push</button>
+      <button fuffle-on:click='this.onClickPop'>Pop</button>
+      <!-- <button fuffle-on:click='this.onClickUpdate'>Update</button> -->
+      <span class='code' fuffle-text>${this.constructor.toString()}</span>
     </template>
     <demo-basic></demo-basic>
     <demo-util></demo-util>

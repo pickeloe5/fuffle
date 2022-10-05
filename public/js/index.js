@@ -66,21 +66,14 @@ class IterativeDemo extends Fuffle.Component {
 
   static template = document.getElementById('demo-iterative-template')
 
-  bake() {
-    const forLoop = this.$.query('fuffle-for').component
-    forLoop.value.push(null)
+  value = ['Iterative Demo:']
 
-    this.$.query('[data-key=push]').on('click', () => {
-      forLoop.value.push(null)
-    })
-    this.$.query('[data-key=pop]').on('click', () => {
-      forLoop.value.pop()
-    })
-    this.$.query('[data-key=update]')?.on('click', () => {
+  onClickPush() {
+    this.value.push('Iterative Demo:')
+  }
 
-    })
-
-    this.$.query('.code').withText(IterativeDemo.toString())
+  onClickPop() {
+    this.value.pop()
   }
 
 }

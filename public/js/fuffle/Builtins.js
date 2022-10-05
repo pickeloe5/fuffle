@@ -1,4 +1,4 @@
-import {ComponentBase} from './Component.js'
+import ComponentBase from './ComponentBase.js'
 import {ArrayObserver} from './Observer.js'
 
 class FuffleIf extends ComponentBase {
@@ -65,25 +65,29 @@ class FuffleIf extends ComponentBase {
 
 class FuffleFor extends ComponentBase {
 
-  static Element = FuffleFor.defineElement('fuffle-for')
+  static TAG_NAME = 'fuffle-for'
+  static Element = FuffleFor.defineElement(FuffleFor.TAG_NAME)
 
-  #value = []
   #observer = null
   #element = null
   #shadow = null
   #children = []
 
-  value = null
-
   constructor(element) {
     super(element)
     this.#element = element
     this.#shadow = element.attachShadow({mode: 'closed'})
-    this.#observer = new ArrayObserver(this.#value)
-      .onPush(this.#insert)
+
+    this.#observer =
+      element.fuffle?.bindings?.value ||
+      new ArrayObserver()
+
+    for (const value of this.#observer.value)
+      this.#insert(value)
+
+    this.#observer.onPush(this.#insert)
       .onPop(this.#remove)
       .onSet(this.#update)
-    this.value = this.#observer.proxy
   }
 
   #insert = value => {

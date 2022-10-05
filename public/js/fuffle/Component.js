@@ -1,41 +1,12 @@
-import ComponentElement from './ComponentElement.js'
 import Observer from './Observer.js'
 import NodeBuilder from './NodeBuilder.js'
 import Template from './Template.js'
 import {cloneTemplate} from './Util.js'
-
-class ComponentBase {
-
-  static defineElement(tagName) {
-    const ComponentImpl = this
-    const ElementImpl = class extends ComponentElement {
-      static Component = ComponentImpl
-    }
-    customElements.define(tagName, ElementImpl)
-    return ElementImpl
-  }
-
-  constructor(element) {
-
-  }
-
-  onConstructed() {
-
-  }
-
-  onConnected() {
-
-  }
-
-  onChanged(name, value, previousValue) {
-
-  }
-
-}
+import ComponentBase from './ComponentBase.js'
 
 class Component extends ComponentBase {
 
-  #observer = new Observer(this)
+  #observer = null
   $ = null
 
   constructor(element) {
@@ -44,6 +15,7 @@ class Component extends ComponentBase {
   }
 
   onConstructed() {
+    this.#observer = new Observer(this)
     if (this.constructor.template)
       Template.bake(this.constructor.template, this.#observer, this.$.node)
     this.#observer.readOnce(this.bake)

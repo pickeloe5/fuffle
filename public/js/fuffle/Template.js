@@ -1,4 +1,5 @@
 import {cloneTemplate} from './Util.js'
+import {FuffleFor} from './Builtins.js'
 
 class Template {
 
@@ -24,9 +25,27 @@ class Template {
     }
   }
 
+  #bakeFor(node) {
+    if (!node.hasAttribute('value'))
+      return;
+
+    node.fuffle = {...node.fuffle,
+      bindings: {...node.bindings,
+        value: this.#observer.readOnce(function() {
+          return eval(node.getAttribute('value')).observer
+        })
+      }
+    }
+
+    node.removeAttribute('value')
+  }
+
   #bakeNode(node) {
     if (node.nodeType !== Node.ELEMENT_NODE)
       return;
+
+    if (node.tagName.toLowerCase() === FuffleFor.TAG_NAME)
+      this.#bakeFor(node)
 
     for (const attribute of [...node.attributes]) {
 
@@ -47,7 +66,12 @@ class Template {
     name = name.substring(Template.Prefix.EVENT.length)
 
     this.#observer.readOnce(function() {
-      element.addEventListener(name, eval(value).bind(this))
+      element.addEventListener(name, (...args) => {
+        let result = eval(value)
+        if (typeof result === 'function')
+          result = result.call(this, ...args)
+        return result
+      })
     })
   }
 
