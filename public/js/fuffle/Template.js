@@ -1,5 +1,5 @@
 import {cloneTemplate} from './Util.js'
-import {FuffleFor} from './Builtins.js'
+import {FuffleIf, FuffleFor} from './Builtins.js'
 
 class Template {
 
@@ -25,26 +25,41 @@ class Template {
     }
   }
 
+  #bakeIf(node) {
+    if (!node.hasAttribute('value'))
+      return;
+
+    const value = node.getAttribute('value')
+    node.removeAttribute('value')
+
+    this.#observer.read(function() {
+      node.setAttribute(FuffleIf.Attribute.CONDITION,
+        eval(value) ? '' : 'false')
+    })
+  }
+
   #bakeFor(node) {
     if (!node.hasAttribute('value'))
       return;
 
+    const value = node.getAttribute('value')
+    node.removeAttribute('value')
     node.fuffle = {...node.fuffle,
       bindings: {...node.bindings,
         value: this.#observer.readOnce(function() {
-          return eval(node.getAttribute('value')).observer
+          return eval(value).observer
         })
       }
     }
-
-    node.removeAttribute('value')
   }
 
   #bakeNode(node) {
     if (node.nodeType !== Node.ELEMENT_NODE)
       return;
 
-    if (node.tagName.toLowerCase() === FuffleFor.TAG_NAME)
+    if (node.tagName.toLowerCase() === FuffleIf.TAG_NAME)
+      this.#bakeIf(node)
+    else if (node.tagName.toLowerCase() === FuffleFor.TAG_NAME)
       this.#bakeFor(node)
 
     for (const attribute of [...node.attributes]) {

@@ -3,8 +3,9 @@ import {ArrayObserver} from './Observer.js'
 
 class FuffleIf extends ComponentBase {
 
-  static Attribute = {VALUE: 'data-value'}
-  static Element = FuffleIf.defineElement('fuffle-if')
+  static Attribute = {CONDITION: 'data-condition'}
+  static TAG_NAME = 'fuffle-if'
+  static Element = FuffleIf.defineElement(FuffleIf.TAG_NAME)
 
   #element = null
   #shadow = null
@@ -40,25 +41,27 @@ class FuffleIf extends ComponentBase {
   }
 
   get #value() {
-    return this.#element.getAttribute(
-      FuffleIf.Attribute.VALUE)
+    if (!this.#element.hasAttribute(FuffleIf.Attribute.CONDITION))
+      return false
+    return this.#element.getAttribute(FuffleIf.Attribute.CONDITION) !== 'false'
   }
 
-  #render(value = this.value) {
-    if (value === 'false')
+  #render(value = this.#value) {
+    if (value)
+      this.#insert()
+    else
       this.#remove()
-    else this.#insert()
   }
 
   toggle() {
     this.#element.setAttribute(
-      FuffleIf.Attribute.VALUE,
+      FuffleIf.Attribute.CONDITION,
       this.#renderedValue ? 'false' : '')
   }
 
   onChanged(name, value) {
-    if (name === FuffleIf.Attribute.VALUE)
-      this.#render(value)
+    if (name === FuffleIf.Attribute.CONDITION)
+      this.#render(value !== 'false')
   }
 
 }
