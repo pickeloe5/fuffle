@@ -31,7 +31,7 @@ class NodeBuilder {
   }
 
   get component() {
-    return this.node.fuffleComponent
+    return this.node.fuffle?.component
   }
 
   constructor(node) {

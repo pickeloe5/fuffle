@@ -1,149 +1,146 @@
-export default class Observer {
+class Observer {
 
-  #target = null
-  #proxy = null
-  #reads = []
-  #arrays = {}
+  target = null
+  #bindings = []
+  proxy = null
+  #children = {}
 
-  constructor(target = {}) {
-    this.#target = target
-
-    for (const key in target)
+  constructor(target) {
+    this.target = target
+    for (const key in target) {
       if (Array.isArray(target[key]))
-        this.#arrays[key] = new ArrayObserver(target[key])
-
-    this.#proxy = this.#makeProxy(false).proxy
+        this.#children[key] = new ArrayObserver(target[key])
+      // else if (typeof target[key] === 'object')
+      //   this.#children[key] = new Observer(target[key])
+    }
+    this.proxy = this.#observe().proxy
   }
 
-  #write(properties) {
-    for (const read of this.#reads) {
-      if (!read.properties.some(name =>
-        properties.includes(name)))
-          continue
-      const {reads} = this.#run(read.function, ...read.arguments)
-      read.properties = reads
+  run(fun, ...args) {
+    return fun.call(this.proxy, ...args)
+  }
+
+  bind(fun, ...args) {
+    this.#bindings.push(this.#runBinding({
+      observation: this.#observe(true, true),
+      function: fun,
+      arguments: args,
+      reads: []
+    }))
+  }
+
+  #runBinding(binding) {
+    const {observation: {proxy, reads, writes}} = binding
+    writes.length = 0
+    binding.function.call(proxy, ...binding.arguments)
+    binding.reads = [...reads]
+    this.#checkBindings([...writes])
+    return binding
+  }
+
+  #checkBindings(properties) {
+    for (const binding of this.#bindings)
+      if (binding.reads.some(it => properties.includes(it)))
+        this.#runBinding(binding)
+  }
+
+  #onRead({reads}, property) {
+    if (reads && !reads.includes(property))
+      reads.push(property)
+    this.onRead(property)
+  }
+
+  onRead(property) {
+
+  }
+
+  #onWrite({writes}, property, value) {
+    if (writes) {
+      if (!writes.includes(property))
+        writes.push(property)
+    } else this.#checkBindings([property])
+    this.onWrite(property, value)
+  }
+
+  onWrite(property, value) {
+
+  }
+
+  #observe(trackReads, trackWrites) {
+    const observation = {
+      reads: trackReads ? [] : null,
+      writes: trackWrites ? [] : null,
+      proxy: new Proxy(this.target, {
+        get: (target, property, receiver) => {
+          if (property === 'observer')
+            return this
+          let result
+          if (property === Symbol.iterator)
+            result = target[Symbol.iterator].bind(target)
+          else if (this.#children.hasOwnProperty(property))
+            result = this.#children[property].proxy
+          else
+            result = Reflect.get(target, property, receiver)
+
+          this.#onRead(observation, property)
+
+          return result
+        },
+        set: (target, property, value, receiver) => {
+          const result =  Reflect.set(target, property, value, receiver)
+
+          this.#onWrite(observation, property, value)
+
+          return result
+        }
+      })
+    }
+    return observation
+  }
+
+}
+
+class ArrayObserver extends Observer {
+
+  #renderedLength = 0
+
+  constructor(target) {
+    super(target)
+    this.#renderedLength = this.target.length
+  }
+
+  #onCreate = (value, index) => {}
+  onCreate(fun) {
+    this.#onCreate = fun
+    return this
+  }
+
+  #onUpdate = (value, index) => {}
+  onUpdate(fun) {
+    this.#onUpdate = fun
+    return this
+  }
+
+  #onDelete = (value, index) => {}
+  onDelete(fun) {
+    this.#onDelete = fun
+    return this
+  }
+
+  onWrite(property, value) {
+    let index
+    if (property === 'length') {
+      for (let i = this.#renderedLength; i < value; i++)
+        this.#onCreate(this.target[i], i)
+      for (let i = this.#renderedLength - 1; i >= value; i--)
+        this.#onDelete(this.target[i], i)
+      this.#renderedLength = value
+    } else if ((index = parseInt(value)) !== NaN) {
+      this.#onUpdate(value, index)
     }
   }
 
-  #run(fun, ...args) {
-    const {proxy, reads} = this.#makeProxy()
-    const result = fun.call(proxy, ...args)
-    return {result, reads}
-  }
-
-  read(fun, ...args) {
-    const {result, reads} = this.#run(fun, ...args)
-    this.#reads.push({
-      function: fun,
-      arguments,
-      properties: reads
-    })
-    return result
-  }
-
-  readOnce(fun, ...args) {
-    return fun.call(this.#proxy, ...args)
-  }
-
-  #makeProxy(trackReads = true, trackWrites) {
-    const reads = [], writes = []
-    const proxy = new Proxy(this.#target, {
-      get: (target, property, receiver) => {
-
-        let result
-        if (this.#arrays.hasOwnProperty(property))
-          result = this.#arrays[property].proxy
-        else
-          result = Reflect.get(target, property, receiver)
-
-        if (typeof result === 'function' && target.hasOwnProperty(property))
-          result = result.bind(receiver)
-        if (trackReads) {
-          if (!reads.includes(property))
-            reads.push(property)
-        }
-        return result
-      },
-      set: (target, property, value, receiver) => {
-        const result = Reflect.set(target, property, value, receiver)
-
-        if (Array.isArray(value))
-          this.#arrays[property] = new ArrayObserver(value)
-
-        if (trackWrites) {
-          if (!writes.includes(property))
-            writes.push(property)
-        } else {
-          this.#write([property])
-        }
-        return result
-      }
-    })
-    return {proxy, reads, writes}
-  }
-
 }
 
-export class ArrayObserver {
-
-  value = []
-  #length = 0
-  proxy = null
-
-  constructor(value = []) {
-    this.value = [...value]
-    this.value.observer = this
-    this.#length = this.value.length
-    this.proxy = this.#makeProxy()
-  }
-
-  #onPush = (value, index) => {}
-  onPush(fun) {
-    this.#onPush = fun
-    return this
-  }
-
-  #onPop = (value, index) => {}
-  onPop(fun) {
-    this.#onPop = fun
-    return this
-  }
-
-  #onSet = (value, index) => {}
-  onSet(fun) {
-    this.#onSet = fun
-    return this
-  }
-
-  withValue(value) {
-    this.proxy.push(...value)
-    return this
-  }
-
-  #onSetLength(length) {
-    for (let i = this.#length; i < length; i++)
-      this.#onPush?.(this.value[i], i)
-
-    for (let i = this.#length - 1; i >= length; i--)
-      this.#onPop?.(this.value[i], i)
-
-    this.#length = length
-  }
-
-  #makeProxy() {
-    return new Proxy(this.value, {
-      set: (target, property, value, receiver) => {
-        const result = Reflect.set(target, property, value, receiver)
-        let index
-
-        if (property === 'length')
-          this.#onSetLength(value)
-        else if ((index = parseInt(property)) !== NaN)
-          this.#onSet?.(value, index)
-
-        return result
-      }
-    })
-  }
-
-}
+export default Observer
+export {ArrayObserver}

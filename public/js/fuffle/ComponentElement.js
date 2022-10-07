@@ -9,12 +9,12 @@ export default class ComponentElement extends HTMLElement {
   }
 
   #component = null
-  fuffleComponent = null
 
   constructor() {
     super()
-    this.fuffleComponent = this.#component =
-      new this.constructor.Component(this)
+    this.fuffle = {...this.fuffle,
+      component: this.#component =
+        new this.constructor.Component(this)}
     this.#component.onConstructed()
   }
 

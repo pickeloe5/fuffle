@@ -4,6 +4,9 @@
     <title>Fuffle</title>
     <script type='module' src='/js/index.js'></script>
     <style>
+      body {
+        font-size: 20pt;
+      }
       .code {
         display: block;
         background-color: #0001;
@@ -25,17 +28,19 @@
         >${this.constructor.toString()}</span>
     </template>
     <template id='demo-conditional-template'>
-      <fuffle-if value='this.value'>Conditional Demo:</fuffle-if>
+      <fuffle-if fuffle-value='this.value'>Conditional Demo:</fuffle-if>
       <br />
       <button fuffle-on:click='this.onClickToggle'>Toggle</button>
-      <span class='code' fuffle-text>${this.constructor.toString()}</span>
+      <span class='code' fuffle-text
+        >${this.constructor.toString()}</span>
     </template>
     <template id='demo-iterative-template'>
-      <fuffle-for value='this.value'>Iterative Demo:</fuffle-for> <br />
+      <fuffle-for fuffle-value='this.value' text>${it}</fuffle-for> <br />
       <button fuffle-on:click='this.onClickPush'>Push</button>
       <button fuffle-on:click='this.onClickPop'>Pop</button>
       <!-- <button fuffle-on:click='this.onClickUpdate'>Update</button> -->
-      <span class='code' fuffle-text>${this.constructor.toString()}</span>
+      <span class='code' fuffle-text
+        >${this.constructor.toString()}</span>
     </template>
     <demo-basic></demo-basic>
     <demo-util></demo-util>

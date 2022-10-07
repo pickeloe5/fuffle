@@ -16,13 +16,11 @@ class Component extends ComponentBase {
 
   onConstructed() {
     this.#observer = new Observer(this)
-    if (this.constructor.template)
-      Template.bake(this.constructor.template, this.#observer, this.$.node)
-    this.#observer.readOnce(this.bake)
-  }
-
-  onConnected() {
-    this.#observer.read(this.render)
+    const children = this.constructor.template?.content?.childNodes
+    if (children)
+      this.$.withChild(...new Template(this.#observer, [...children]).bake())
+    this.#observer.run(this.bake)
+    this.#observer.bind(this.render)
   }
 
   bake() {
