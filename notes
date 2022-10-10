@@ -1,3 +1,8 @@
 components store their observers on themselves,
   the proxy does a hard check for the observer property,
   which stops this from being an infinitely recursive problem.
+
+parent is connected first when both parent and child are added simultaneously
+  if custom element is already defined for both parent and child
+  else whichever custom element is defined first is connected first
+  setTimeout(..., 0) can be used to ensure all elements are defined

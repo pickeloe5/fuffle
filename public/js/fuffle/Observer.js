@@ -94,7 +94,7 @@ export default class Observer extends EventTarget {
       set: (target, property, value, receiver) => {
         const result = Reflect.set(target, property, value, receiver)
 
-        this.#adopt(propery, value)
+        this.#adopt(property, value)
         this.onWrite([property])
 
         return result

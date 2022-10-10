@@ -1,4 +1,4 @@
-import {Observer} from '/js/fuffle/index.js'
+import {Observer, Binding} from '/js/fuffle/index.js'
 
 document.getElementById('push').addEventListener('click', () => {
   Observer.dummy.proxy.array.push('string')
