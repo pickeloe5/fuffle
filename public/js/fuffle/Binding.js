@@ -15,21 +15,24 @@ export default class Binding {
     return this
   }
 
-  #run(observer) {
-    const stopTrackingReads = observer.trackReads()
-    const result = this.run.call(observer.proxy)
-    this.#dependencies = stopTrackingReads()
-    this.#onRun?.(result)
+  onRun(fun) {
+    this.onRunImpl = fun
+    return this
   }
 
   run() {
 
   }
 
-  #onRun = null
-  onRun(fun = (result) => {}) {
-    this.#onRun = fun
-    return this
+  onRunImpl(value) {
+
+  }
+
+  #run(observer) {
+    const stopTrackingReads = observer.trackReads()
+    const result = this.run.call(observer.proxy)
+    this.#dependencies = stopTrackingReads()
+    this.onRunImpl?.(result)
   }
 
   #onWrite = observer => ({propertyPath}) => {
