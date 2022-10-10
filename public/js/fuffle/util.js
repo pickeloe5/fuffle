@@ -8,3 +8,14 @@ export const pathEquals = pathA => pathB => {
 
   return true
 }
+
+export const provideObserver = (node, observer) => {
+  node.fuffle = {...node.fuffle, observer}
+}
+
+export const consumeObserver = async node => {
+  while (node = node?.parentNode)
+    if (node.fuffle?.observer)
+      return node.fuffle.observer
+  return null
+}

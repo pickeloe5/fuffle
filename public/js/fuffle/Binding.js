@@ -2,25 +2,22 @@ import {pathEquals} from './util.js'
 
 export default class Binding {
 
-  static js(observer, js) {
-    return new BindingJavascript(observer, js)
+  static js(js) {
+    return new BindingJavascript(js)
   }
 
-  #observer = null
   #dependencies = []
-  constructor(observer) {
-    this.#observer = observer
-  }
 
-  start() {
-    this.#run()
-    this.#observer.addEventListener('write', this.#onWrite)
+  start(observer) {
+    this.#run(observer)
+    observer.addEventListener('write',
+      this.#onWrite(observer))
     return this
   }
 
-  #run() {
-    const stopTrackingReads = this.#observer.trackReads()
-    const result = this.run.call(this.#observer.proxy)
+  #run(observer) {
+    const stopTrackingReads = observer.trackReads()
+    const result = this.run.call(observer.proxy)
     this.#dependencies = stopTrackingReads()
     this.#onRun?.(result)
   }
@@ -35,19 +32,19 @@ export default class Binding {
     return this
   }
 
-  #onWrite = ({propertyPath}) => {
+  #onWrite = observer => ({propertyPath}) => {
     if (!this.#dependencies.some(pathEquals(propertyPath)))
       return;
 
-    this.#run()
+    this.#run(observer)
   }
 
 }
 
 export class BindingJavascript extends Binding {
 
-  constructor(observer, js) {
-    super(observer)
+  constructor(js) {
+    super()
     this.run = function() {
       return eval(js)
     }
