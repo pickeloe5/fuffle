@@ -1,10 +1,6 @@
 import {pathEquals} from './util.js'
 
-export default class Binding {
-
-  static js(js) {
-    return new BindingJavascript(js)
-  }
+export class BindingBase {
 
   #dependencies = []
 
@@ -15,16 +11,11 @@ export default class Binding {
     return this
   }
 
-  onRun(fun) {
-    this.onRunImpl = fun
-    return this
-  }
-
   run() {
 
   }
 
-  onRunImpl(value) {
+  onRun(value) {
 
   }
 
@@ -32,7 +23,7 @@ export default class Binding {
     const stopTrackingReads = observer.trackReads()
     const result = this.run.call(observer.proxy)
     this.#dependencies = stopTrackingReads()
-    this.onRunImpl?.(result)
+    this.onRun?.(result)
   }
 
   #onWrite = observer => ({propertyPath}) => {
@@ -44,7 +35,7 @@ export default class Binding {
 
 }
 
-export class BindingJavascript extends Binding {
+export default class Binding extends BindingBase {
 
   constructor(js) {
     super()

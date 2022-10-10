@@ -1,10 +1,17 @@
-import {Observer, util} from '/js/fuffle/index.js'
+import {Observer, Template} from '/js/fuffle/index.js'
 
-const provider = document.getElementById('provider')
-util.provideObserver(provider, Observer.dummy)
-const consumer = document.createElement('fuffle-text')
-consumer.textContent = '${this.array[0]}'
-provider.appendChild(consumer)
+customElements.define('fuffle-demo', class extends HTMLElement {
+
+  static template = Template.fromNode(
+    document.getElementById('demo-template'))
+
+  template = this.constructor.template.bake()
+
+  constructor() {
+    super()
+    this.template.start(Observer.dummy).join(this)
+  }
+})
 
 document.getElementById('push').addEventListener('click', () => {
   Observer.dummy.proxy.array.push('string')

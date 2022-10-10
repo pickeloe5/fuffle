@@ -5,11 +5,16 @@
     <script type='module' src='/js/index.js'></script>
   </head>
   <body>
+    <template id='demo-template'>
+      <p fuffle-text>${this.property}</p>
+      <input type='text'
+        fuffle:value='this.property'
+        fuffle-on:keyup='this.onKeyUp' />
+    </template>
     <button id='push'>Push</button>
     <button id='pop'>Pop</button>
     <button id='update'>Update</button>
     <br />
-    <div id='provider'>
-    </div>
+    <fuffle-demo></fuffle-demo>
   </body>
 </html>

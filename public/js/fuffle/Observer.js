@@ -2,7 +2,10 @@ import {pathEquals} from './util.js'
 
 export default class Observer extends EventTarget {
 
-  static dummy = new Observer({array: ['string']})
+  static dummy = new Observer({
+    property: 'value',
+    onKeyUp(e) {this.property = e.target.value}
+  })
 
   target = null
   proxy = null
@@ -86,6 +89,9 @@ export default class Observer extends EventTarget {
           result = this.#children[property].proxy
         else
           result = Reflect.get(target, property, receiver)
+
+        if (typeof result === 'function' && target.hasOwnProperty(property))
+          result = result.bind(receiver)
 
         this.onRead([property])
 

@@ -1,6 +1,11 @@
 import Observer from './Observer.js'
-import Binding from './Binding.js'
-import FuffleText from './Text.js'
+import Binding, {BindingBase} from './Binding.js'
+import Template, {TemplateInstance} from './Template.js'
 import * as util from './util.js'
 
-export {Observer, Binding, FuffleText, util}
+export {
+  Observer,
+  Binding, BindingBase,
+  Template, TemplateInstance,
+  util
+}
