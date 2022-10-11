@@ -1,19 +1,24 @@
-import {Observer, Template, util} from '/js/fuffle/index.js'
+import {Component, Template} from '/js/fuffle/index.js'
 
-customElements.define('fuffle-demo', class extends util.ProviderElement {
+class FuffleDemo extends Component {
 
   static template = Template.fromNode(
     document.getElementById('demo-template'))
 
-  template = this.constructor.template.bake()
+  array = ['string']
 
-  connectedCallback() {
-    setTimeout(() => {
-      this.template.withParent(this).start(Observer.dummy)
-    }, 0)
+  push() {
+    this.array.push('string')
   }
 
-  disconnectedCallback() {
-    this.template.stop()
+  pop() {
+    this.array.pop()
   }
-})
+
+  update() {
+    const index = Math.trunc(Math.random() * this.array.length)
+    this.array[index] += '.'
+  }
+}
+
+const FuffleDemoElement = FuffleDemo.defineElement('fuffle-demo')

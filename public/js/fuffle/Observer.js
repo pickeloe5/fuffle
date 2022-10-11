@@ -19,17 +19,6 @@ export default class Observer extends EventTarget {
     return Array.isArray(observer?.target) ? observer : null
   }
 
-  static dummy = new Observer({
-    name: 'item',
-    array: ['string'],
-    push() {this.array.push('string')},
-    pop() {this.array.pop()},
-    update() {
-      const index = Math.trunc(Math.random() * this.array.length)
-      this.array[index] += '.'
-    }
-  })
-
   target = null
   proxy = null
 
@@ -117,11 +106,10 @@ export default class Observer extends EventTarget {
         else
           result = Reflect.get(target, property, receiver)
 
-        if (typeof result === 'function' && target.hasOwnProperty(property))
+        if (typeof result === 'function')
           result = result.bind(receiver)
 
         this.onRead([property])
-
         return result
       },
       set: (target, property, value, receiver) => {

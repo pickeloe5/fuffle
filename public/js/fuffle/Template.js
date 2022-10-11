@@ -64,7 +64,7 @@ export class TemplateInstance {
   withParent(parent) {
     this.#parent = parent
     for (const child of this.children)
-      this.#parent.appendChild(child)
+      parent.appendChild(child)
     return this
   }
 
@@ -194,7 +194,6 @@ class BindingAttribute extends Binding {
   onRun(value) {
     if (this.#isString)
       this.#node.setAttribute(this.#name, value)
-
     const event = new Event(EventName.ATTRIBUTE_CHANGED)
     event.attributeName = this.#name
     event.attributeValue = value

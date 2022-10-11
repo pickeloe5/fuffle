@@ -7,8 +7,9 @@ export default class FuffleFor extends ComponentBase {
   static Attribute = {ARRAY: 'data-array', NAME: 'data-name'}
   static isProvider = true
 
-  #shadow = null
   #observer = null
+  #element = null
+  #shadow = null
 
   #template = null
   #children = []
@@ -16,6 +17,7 @@ export default class FuffleFor extends ComponentBase {
 
   constructor(element) {
     super(element)
+    this.#element = element
     this.#shadow = element.attachShadow({mode: 'closed'})
     this.#template = new Template([...element.childNodes])
   }
@@ -57,12 +59,11 @@ export default class FuffleFor extends ComponentBase {
     this.#observer = Observer.fromArray(value)
     if (!this.#observer)
       return;
-
-    if (this.isConnected)
-      this.#createChildren()
   }
 
   #createChildren() {
+    if (!this.#observer)
+      return;
     for (const index in this.#observer.target)
       this.#onCreate(index)
 
