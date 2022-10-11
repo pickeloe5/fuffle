@@ -16,7 +16,7 @@ export default class Observer extends EventTarget {
 
   static fromArray(value) {
     const observer = Observer.resolve(value)
-    return Array.isArray(observer.target) ? observer : null
+    return Array.isArray(observer?.target) ? observer : null
   }
 
   static dummy = new Observer({

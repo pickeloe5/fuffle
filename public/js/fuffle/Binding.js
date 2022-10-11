@@ -47,7 +47,7 @@ export class BindingBase {
 
 export default class Binding extends BindingBase {
 
-  #state = {
+  state = {
     js: '',
     locals: null
   }
@@ -55,24 +55,24 @@ export default class Binding extends BindingBase {
   constructor(js) {
     super()
     if (js)
-      this.#state.js = js
+      this.state.js = js
     this.run = this.#makeRun()
   }
 
   withLocals(locals = {}) {
-    this.#state.locals = locals
+    this.state.locals = locals
     return this
   }
 
   withJs(js) {
-    this.#state.js = js
+    this.state.js = js
     if (this.observer)
       this.runTracked()
     return this
   }
 
   #makeRun() {
-    const state = this.#state
+    const {state} = this
     return function() {
       let js = ''
       if (state.locals)

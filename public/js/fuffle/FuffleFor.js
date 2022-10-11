@@ -1,5 +1,5 @@
 import Observer from './Observer.js'
-import Binding from './Binding.js'
+import {BindingBase} from './Binding.js'
 import {consumeObserver} from './util.js'
 import Template from './Template.js'
 
@@ -11,113 +11,93 @@ export default class FuffleFor extends HTMLElement {
     return [FuffleFor.Attribute.ARRAY, FuffleFor.Attribute.NAME]
   }
 
-  #binding = null
+  #shadow = null
+
+  #template = null
+  #templateInstances = []
+
+  #arrayObserver = null
+  #iterationName = 'it'
 
   constructor() {
     super()
     this.fuffle = {...this.fuffle, provider: true}
-    this.#binding = new BindingArray(
-      this.attachShadow({mode: 'closed'}),
-      [...this.childNodes])
-  }
-
-  connectedCallback() {
-    this.#binding.withJs(this.getAttribute(FuffleFor.Attribute.ARRAY))
-
-    consumeObserver(this).then(observer => {
-      this.fuffle = {...this.fuffle, observer}
-      this.#binding.start(observer)
-    })
-  }
-
-  disconnectedCallback() {
-    this.#binding.stop()
-  }
-
-  attributeChangedCallback(name, previousValue, value) {
-    switch (name) {
-      case FuffleFor.Attribute.ARRAY:
-        this.#binding.withJs(value)
-        break
-      case FuffleFor.Attribute.NAME:
-        this.#binding.withName(value)
-        break
-    }
-  }
-
-}
-customElements.define('fuffle-for', FuffleFor)
-
-class BindingArray extends Binding {
-
-  #parent = null
-  #children = []
-
-  #template = null
-  #instances = []
-
-  #value = null
-  #length = 0
-  #name = 'it'
-
-  constructor(parent, children) {
-    super()
-    this.#parent = parent
-    this.#children = children
-    this.#template = new Template(this.#children)
-  }
-
-  #makeLocals(index) {
-    return {[this.#name]: () => this.#value.proxy[index]}
-  }
-
-  withName(name) {
-    this.#name = name
-    for (const i in this.#instances)
-      this.#instances[i].withLocals(this.#makeLocals(i))
-    return this
-  }
-
-  #onCreate(index, value = this.#value.target[index]) {
-    this.#instances.push(this.#template.bake()
-      .withLocals(this.#makeLocals(index))
-      .withParent(this.#parent)
-      .start(this.observer))
-  }
-
-  #onDelete() {
-    this.#instances.pop().stop().withoutParent()
+    this.#shadow = this.attachShadow({mode: 'closed'})
+    this.#template = new Template([...this.childNodes])
   }
 
   #onWrite = ({propertyPath, propertyValue}) => {
     if (propertyPath.length !== 1 ||
         propertyPath[0] !== 'length' ||
-        propertyValue === this.#length)
+        propertyValue === this.#templateInstances.length)
       return;
 
-    for (let i = this.#length; i < propertyValue; i++)
+    for (let i = this.#templateInstances.length; i < propertyValue; i++)
       this.#onCreate(i)
-    for (let i = this.#length - 1; i >= propertyValue; i--)
+    for (let i = this.#templateInstances.length - 1; i >= propertyValue; i--)
       this.#onDelete()
-
-    this.#length = propertyValue
   }
 
-  onRun(value) {
-    if (this.#value) {
-      this.#value?.removeEventListener('write', this.#onWrite)
-      for (let i = 0; i < this.#value.target.length; i++)
+  #onCreate(index, value = this.#arrayObserver.target[index]) {
+    this.#templateInstances.push(this.#template.bake()
+      .withLocals(this.#makeLocals(index))
+      .withParent(this.#shadow)
+      .start(this.#arrayObserver))
+  }
+
+  #onDelete() {
+    this.#templateInstances.pop().stop().withoutParent()
+  }
+
+  connectedCallback() {
+    consumeObserver(this).then(observer => {
+      this.fuffle = {...this.fuffle, observer}
+      observer.addEventListener('write', this.#onWrite)
+    })
+  }
+
+  disconnectedCallback() {
+    this.#arrayObserver?.removeEventListener('write', this.#onWrite)
+    for (const instance of this.#templateInstances)
+      instance.stop()
+  }
+
+  attributeChangedCallback(name, previousValue, value) {
+    switch (name) {
+      case FuffleFor.Attribute.ARRAY:
+        this.#setArray(this.fuffle?.attributes?.[name])
+        break
+      case FuffleFor.Attribute.NAME:
+        this.#setIterationName(value)
+        break
+    }
+  }
+
+  #setArray(value) {
+    if (this.#arrayObserver) {
+      this.#arrayObserver?.removeEventListener('write', this.#onWrite)
+      for (let i = 0; i < this.#arrayObserver.target.length; i++)
         this.#onDelete()
     }
 
-    this.#value = Observer.fromArray(value)
-    if (!this.#value)
+    this.#arrayObserver = Observer.fromArray(value)
+    if (!this.#arrayObserver)
       return;
 
-    for (const index in this.#value.target)
+    for (const index in this.#arrayObserver.target)
       this.#onCreate(index)
-    this.#length = this.#value.target.length
-    this.#value?.addEventListener('write', this.#onWrite)
+    this.#arrayObserver.addEventListener('write', this.#onWrite)
+  }
+
+  #setIterationName(name) {
+    this.#iterationName = name
+    for (const i in this.#templateInstances)
+      this.#templateInstances[i].withLocals(this.#makeLocals(i))
+  }
+
+  #makeLocals(index) {
+    return {[this.#iterationName]: () => this.#arrayObserver.proxy[index]}
   }
 
 }
+customElements.define('fuffle-for', FuffleFor)

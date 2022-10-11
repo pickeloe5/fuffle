@@ -180,7 +180,12 @@ class BindingAttribute extends Binding {
   }
 
   onRun(value) {
-    this.#node.setAttribute(this.#name, value)
+    this.#node.fuffle = Object.assign(this.#node.fuffle || {}, {
+      attributes: {...this.#node.fuffle.attributes,
+        [this.#name]: value}})
+    this.#node.setAttribute(this.#name,
+      typeof value === 'string'
+        ? value : this.state.js)
   }
 }
 

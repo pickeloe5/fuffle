@@ -1,4 +1,4 @@
-import {Observer, Template} from '/js/fuffle/index.js'
+import {Observer, Template, Component} from '/js/fuffle/index.js'
 
 customElements.define('fuffle-demo', class extends HTMLElement {
 
@@ -19,6 +19,6 @@ customElements.define('fuffle-demo', class extends HTMLElement {
   }
 
   disconnectedCallback() {
-    this.template.stop().withoutParent()
+    this.template.stop()
   }
 })

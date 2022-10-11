@@ -1,8 +1,7 @@
-components store their observers on themselves,
-  the proxy does a hard check for the observer property,
-  which stops this from being an infinitely recursive problem.
+sometimes we want to bind a non-string attribute and use it as a non-string
+  the attribute names are already a pain though
+  so for now we just check if the binding evaluates to a string
+  if it does, apply it directly as the attribute value
+  else, show the JS as the attribute value, hiding the real value on the node
 
-parent is connected first when both parent and child are added simultaneously
-  if custom element is already defined for both parent and child
-  else whichever custom element is defined first is connected first
-  setTimeout(..., 0) can be used to ensure all elements are defined
+break iterative rendering out of fuffle-for
