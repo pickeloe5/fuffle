@@ -3,8 +3,14 @@ import Binding from './Binding.js'
 export default class Template {
 
   static Text = {SHALLOW: 'shallow', DEEP: 'deep'}
-  static Attribute = {TEXT: 'fuffle-text'}
-  static Prefix = {ATTRIBUTE: 'fuffle:', EVENT: 'fuffle-on:'}
+  static Attribute = {TEXT: 'data-f-text'}
+  static Prefix = {ATTRIBUTE: 'data-f:', EVENT: 'data-f-on:'}
+
+  static fromNode(node) {
+    return new Template(
+      [...node.content.childNodes],
+      Template.getTextMode(node))
+  }
 
   static getTextMode(node, inherited = false) {
     let mode = false
@@ -20,14 +26,9 @@ export default class Template {
     return mode
   }
 
-  static fromNode(node) {
-    return new Template(
-      [...node.content.childNodes],
-      Template.getTextMode(node))
-  }
-
   #children
   #textMode
+
   constructor(children, textMode) {
     this.#children = children
     this.#textMode = textMode
@@ -44,17 +45,11 @@ export default class Template {
 export class TemplateInstance {
 
   #bindings = []
-  #children = []
+  children = []
 
   constructor(children, textMode = false) {
-    this.#children = children
+    this.children = children
     this.#bindChildren(children, textMode)
-  }
-
-  join(node) {
-    for (const child of this.#children)
-      node.appendChild(child)
-    return this
   }
 
   start(observer) {
@@ -66,10 +61,11 @@ export class TemplateInstance {
   #bindChildren(children, textMode = false) {
     for (const child of children) {
       switch (child.nodeType) {
+
         case Node.TEXT_NODE:
-          if (textMode)
-            this.#bindText(child)
+          this.#bindText(child, textMode)
           break
+
         case Node.ELEMENT_NODE:
           this.#bindElement(child, textMode)
           break
@@ -77,21 +73,47 @@ export class TemplateInstance {
     }
   }
 
-  #bindText(node) {
-    this.#bindings.push(new BindingText(node))
+  #bindText(node, textMode) {
+    if (!textMode)
+      return;
+
+    const value = node.nodeValue
+    node.nodeValue = ''
+    this.#bindings.push(new BindingText(node, value))
   }
 
   #bindElement(element, textMode) {
 
-    for (const name of element.getAttributeNames()) {
-      if (name.startsWith(Template.Prefix.ATTRIBUTE))
-        this.#bindings.push(new BindingAttribute(element, name))
-      else if (name.startsWith(Template.Prefix.EVENT))
-        this.#bindings.push(new BindingEvent(element, name))
-    }
+    for (const prefixedName of element.getAttributeNames())
+      this.#bindAttribute(element, prefixedName)
 
     this.#bindChildren(element.childNodes,
       Template.getTextMode(element, textMode))
+  }
+
+  #bindAttribute(element, prefixedName) {
+    const [prefix, name] = this.#getAttributePrefix(prefixedName)
+    if (!prefix)
+      return;
+
+    const value = element.getAttribute(prefixedName)
+    element.removeAttribute(prefixedName)
+
+    switch (prefix) {
+      case Template.Prefix.ATTRIBUTE:
+        this.#bindings.push(new BindingAttribute(element, name, value))
+        break
+      case Template.Prefix.EVENT:
+        this.#bindings.push(new BindingEvent(element, name, value))
+        break
+    }
+  }
+
+  #getAttributePrefix(name) {
+    for (const prefix of Object.values(Template.Prefix))
+      if (name.startsWith(prefix))
+        return [prefix, name.substring(prefix.length)]
+    return ['', name]
   }
 
 }
@@ -100,8 +122,8 @@ class BindingText extends Binding {
 
   #node = null
 
-  constructor(node) {
-    super(`\`${node.nodeValue}\``)
+  constructor(node, value = '') {
+    super(`\`${value}\``)
     this.#node = node
   }
 
@@ -115,11 +137,10 @@ class BindingAttribute extends Binding {
   #node = null
   #name = ''
 
-  constructor(node, prefixedName) {
-    super(node.getAttribute(prefixedName))
-    node.removeAttribute(prefixedName)
+  constructor(node, name, value) {
+    super(value)
     this.#node = node
-    this.#name = prefixedName.substring(Template.Prefix.ATTRIBUTE.length)
+    this.#name = name
   }
 
   onRun(value) {
@@ -131,18 +152,18 @@ class BindingEvent extends Binding {
 
   #node = null
   #name = ''
-  #listener = null
+  #value = null
 
-  constructor(node, prefixedName) {
-    super(node.getAttribute(prefixedName))
-    node.removeAttribute(prefixedName)
+  constructor(node, name, value) {
+    super(value)
     this.#node = node
-    this.#name = prefixedName.substring(Template.Prefix.EVENT.length)
+    this.#name = name
   }
 
   onRun(value) {
-    if (this.#listener)
-      this.#node.removeEventListener(this.#name, this.#listener)
+    if (this.#value)
+      this.#node.removeEventListener(this.#name, this.#value)
     this.#node.addEventListener(this.#name, value)
+    this.#value = value
   }
 }

@@ -6,10 +6,13 @@
   </head>
   <body>
     <template id='demo-template'>
-      <p fuffle-text>${this.property}</p>
+      <p data-f-text>${this.property}</p>
+      <fuffle-if data-condition='this.property'>
+        <p>Woah there</p>
+      </fuffle-if>
       <input type='text'
-        fuffle:value='this.property'
-        fuffle-on:keyup='this.onKeyUp' />
+        data-f:value='this.property'
+        data-f-on:keyup='this.onKeyUp' />
     </template>
     <button id='push'>Push</button>
     <button id='pop'>Pop</button>

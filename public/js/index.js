@@ -9,7 +9,10 @@ customElements.define('fuffle-demo', class extends HTMLElement {
 
   constructor() {
     super()
-    this.template.start(Observer.dummy).join(this)
+    this.fuffle = {...this.fuffle, observer: Observer.dummy}
+    this.template.start(Observer.dummy)
+    for (const child of this.template.children)
+      this.appendChild(child)
   }
 })
 

@@ -18,6 +18,6 @@ export const consumeObserver = node => new Promise((resolve, reject) => {
     while (node = node?.parentNode)
       if (node.fuffle?.observer)
         resolve(node.fuffle.observer)
-    resolve(null)
+    reject(new Error('No context found'))
   }, 0)
 })

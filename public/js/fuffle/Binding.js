@@ -3,11 +3,21 @@ import {pathEquals} from './util.js'
 export class BindingBase {
 
   #dependencies = []
+  observer = null
 
-  start(observer) {
-    this.#run(observer)
-    observer.addEventListener('write',
-      this.#onWrite(observer))
+  constructor(observer = null) {
+    this.observer = observer
+  }
+
+  start(observer = this.observer) {
+    this.observer = observer
+    this.runTracked()
+    observer.addEventListener('write', this.#onWrite)
+    return this
+  }
+
+  stop() {
+    this.observer.removeEventListener(this.#onWrite)
     return this
   }
 
@@ -19,29 +29,45 @@ export class BindingBase {
 
   }
 
-  #run(observer) {
-    const stopTrackingReads = observer.trackReads()
-    const result = this.run.call(observer.proxy)
+  runTracked() {
+    const stopTrackingReads = this.observer.trackReads()
+    const result = this.run.call(this.observer.proxy)
     this.#dependencies = stopTrackingReads()
-    this.onRun?.(result)
+    this.onRun(result)
   }
 
-  #onWrite = observer => ({propertyPath}) => {
+  #onWrite = ({propertyPath}) => {
     if (!this.#dependencies.some(pathEquals(propertyPath)))
       return;
 
-    this.#run(observer)
+    this.runTracked()
   }
 
 }
 
 export default class Binding extends BindingBase {
 
+  #js = {_:''}
+
   constructor(js) {
     super()
-    this.run = function() {
-      return eval(js)
+    if (js)
+      this.#js._ = js
+    this.run = this.#makeRun()
+  }
+
+  #makeRun() {
+    const js = this.#js
+    return function() {
+      return eval(js._)
     }
+  }
+
+  withJs(js) {
+    this.#js._ = js
+    if (this.observer)
+      this.runTracked()
+    return this
   }
 
 }
