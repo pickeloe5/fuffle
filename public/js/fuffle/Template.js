@@ -26,10 +26,10 @@ export default class Template {
     return mode
   }
 
-  #children
-  #textMode
+  #children = []
+  #textMode = false
 
-  constructor(children, textMode) {
+  constructor(children, textMode = false) {
     this.#children = children
     this.#textMode = textMode
   }
@@ -44,21 +44,52 @@ export default class Template {
 
 export class TemplateInstance {
 
+  #textMode
+  #locals = null
   #bindings = []
+
+  #parent = null
   children = []
 
-  constructor(children, textMode = false) {
+  constructor(children, textMode) {
     this.children = children
-    this.#bindChildren(children, textMode)
+    this.#textMode = textMode
+  }
+
+  withParent(parent) {
+    this.#parent = parent
+    for (const child of this.children)
+      this.#parent.appendChild(child)
+    return this
+  }
+
+  withLocals(locals) {
+    this.#locals = locals
+    return this
   }
 
   start(observer) {
+    this.#bindChildren(this.children, this.#textMode)
     for (const binding of this.#bindings)
       binding.start(observer)
     return this
   }
 
-  #bindChildren(children, textMode = false) {
+  stop() {
+    for (const binding of this.#bindings)
+      binding.stop()
+    return this
+  }
+
+  withoutParent() {
+    if (this.#parent)
+      for (const child of this.children)
+        this.#parent.removeChild(child)
+    this.#parent = null
+    return this
+  }
+
+  #bindChildren(children, textMode) {
     for (const child of children) {
       switch (child.nodeType) {
 
@@ -79,7 +110,9 @@ export class TemplateInstance {
 
     const value = node.nodeValue
     node.nodeValue = ''
-    this.#bindings.push(new BindingText(node, value))
+
+    this.#bindings.push(new BindingText(node, value)
+      .withLocals(this.#locals))
   }
 
   #bindElement(element, textMode) {
@@ -87,8 +120,9 @@ export class TemplateInstance {
     for (const prefixedName of element.getAttributeNames())
       this.#bindAttribute(element, prefixedName)
 
-    this.#bindChildren(element.childNodes,
-      Template.getTextMode(element, textMode))
+    if (!element.fuffle?.provider)
+      this.#bindChildren(element.childNodes,
+        Template.getTextMode(element, textMode))
   }
 
   #bindAttribute(element, prefixedName) {
@@ -101,10 +135,12 @@ export class TemplateInstance {
 
     switch (prefix) {
       case Template.Prefix.ATTRIBUTE:
-        this.#bindings.push(new BindingAttribute(element, name, value))
+        this.#bindings.push(new BindingAttribute(element, name, value)
+          .withLocals(this.#locals))
         break
       case Template.Prefix.EVENT:
-        this.#bindings.push(new BindingEvent(element, name, value))
+        this.#bindings.push(new BindingEvent(element, name, value)
+          .withLocals(this.#locals))
         break
     }
   }

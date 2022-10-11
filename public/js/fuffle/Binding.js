@@ -17,7 +17,7 @@ export class BindingBase {
   }
 
   stop() {
-    this.observer.removeEventListener(this.#onWrite)
+    this.observer?.removeEventListener('write', this.#onWrite)
     return this
   }
 
@@ -47,27 +47,39 @@ export class BindingBase {
 
 export default class Binding extends BindingBase {
 
-  #js = {_:''}
+  #state = {
+    js: '',
+    locals: null
+  }
 
   constructor(js) {
     super()
     if (js)
-      this.#js._ = js
+      this.#state.js = js
     this.run = this.#makeRun()
   }
 
-  #makeRun() {
-    const js = this.#js
-    return function() {
-      return eval(js._)
-    }
+  withLocals(locals = {}) {
+    this.#state.locals = locals
+    return this
   }
 
   withJs(js) {
-    this.#js._ = js
+    this.#state.js = js
     if (this.observer)
       this.runTracked()
     return this
+  }
+
+  #makeRun() {
+    const state = this.#state
+    return function() {
+      let js = ''
+      if (state.locals)
+        for (const name in state.locals)
+          js += `const ${name}=state.locals.${name}?.();`
+      return eval(js + state.js)
+    }
   }
 
 }

@@ -6,18 +6,13 @@
   </head>
   <body>
     <template id='demo-template'>
-      <p data-f-text>${this.property}</p>
-      <fuffle-if data-condition='this.property'>
-        <p>Woah there</p>
-      </fuffle-if>
-      <input type='text'
-        data-f:value='this.property'
-        data-f-on:keyup='this.onKeyUp' />
+      <fuffle-for data-array='this.array' data-name='item'>
+        <span data-f-text>${item}</span>
+      </fuffle-for>
+      <button data-f-on:click='this.push'>Push</button>
+      <button data-f-on:click='this.pop'>Pop</button>
+      <button data-f-on:click='this.update'>Update</button>
     </template>
-    <button id='push'>Push</button>
-    <button id='pop'>Pop</button>
-    <button id='update'>Update</button>
-    <br />
     <fuffle-demo></fuffle-demo>
   </body>
 </html>

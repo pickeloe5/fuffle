@@ -1,5 +1,4 @@
 import Binding from './Binding.js'
-import Observer from './Observer.js'
 import {consumeObserver} from './util.js'
 
 export default class FuffleIf extends HTMLElement {
@@ -11,12 +10,11 @@ export default class FuffleIf extends HTMLElement {
   }
 
   #binding = null
-  #shadow = null
 
   constructor() {
     super()
-    this.#shadow = this.attachShadow({mode: 'closed'})
-    this.#binding = new BindingCondition(this.#shadow,
+    this.#binding = new BindingCondition(
+      this.attachShadow({mode: 'closed'}),
       [...this.childNodes].map(it => it.cloneNode(true)))
   }
 
@@ -28,7 +26,7 @@ export default class FuffleIf extends HTMLElement {
   }
 
   disconnectedCallback() {
-    this.#binding.stop()
+    this.#binding?.stop()
   }
 
   attributeChangedCallback(name, previousValue, value) {
@@ -45,8 +43,8 @@ class BindingCondition extends Binding {
   #children = []
   #value = false
 
-  constructor(parent, children, js) {
-    super(js)
+  constructor(parent, children) {
+    super()
     this.#parent = parent
     this.#children = children
   }

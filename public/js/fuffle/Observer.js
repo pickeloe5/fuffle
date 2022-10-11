@@ -1,10 +1,32 @@
 import {pathEquals} from './util.js'
 
+class ObserverProxy {
+  static instance = new ObserverProxy()
+}
+
 export default class Observer extends EventTarget {
 
+  static resolve(value) {
+    if (!value)
+      return null
+    if (!(value instanceof ObserverProxy))
+      return null
+    return value.observer
+  }
+
+  static fromArray(value) {
+    const observer = Observer.resolve(value)
+    return Array.isArray(observer.target) ? observer : null
+  }
+
   static dummy = new Observer({
-    property: 'value',
-    onKeyUp(e) {this.property = e.target.value}
+    array: ['string'],
+    push() {this.array.push('string')},
+    pop() {this.array.pop()},
+    update() {
+      const index = Math.trunc(Math.random() * this.array.length)
+      this.array[index] += '.'
+    }
   })
 
   target = null
@@ -54,12 +76,13 @@ export default class Observer extends EventTarget {
     this.parent?.onRead([this.#name, ...path])
   }
 
-  onWrite(path) {
+  onWrite(path, value) {
     const event = new Event('write')
     event.propertyPath = path
+    event.propertyValue = value
     this.dispatchEvent(event)
 
-    this.parent?.onWrite([this.#name, ...path])
+    this.parent?.onWrite([this.#name, ...path], value)
   }
 
   #adopt(property, value = this.target[property]) {
@@ -80,6 +103,9 @@ export default class Observer extends EventTarget {
 
   #makeProxy() {
     return new Proxy(this.target, {
+      getPrototypeOf(target) {
+        return ObserverProxy.instance
+      },
       get: (target, property, receiver) => {
         if (property === 'observer')
           return this
@@ -101,7 +127,7 @@ export default class Observer extends EventTarget {
         const result = Reflect.set(target, property, value, receiver)
 
         this.#adopt(property, value)
-        this.onWrite([property])
+        this.onWrite([property], value)
 
         return result
       },

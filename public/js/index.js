@@ -9,17 +9,16 @@ customElements.define('fuffle-demo', class extends HTMLElement {
 
   constructor() {
     super()
-    this.fuffle = {...this.fuffle, observer: Observer.dummy}
-    this.template.start(Observer.dummy)
-    for (const child of this.template.children)
-      this.appendChild(child)
+    this.fuffle = {...this.fuffle, observer: Observer.dummy, provider: true}
   }
-})
 
-document.getElementById('push').addEventListener('click', () => {
-  Observer.dummy.proxy.array.push('string')
-})
+  connectedCallback() {
+    setTimeout(() => {
+      this.template.withParent(this).start(Observer.dummy)
+    }, 0)
+  }
 
-document.getElementById('pop').addEventListener('click', () => {
-  Observer.dummy.proxy.array.pop()
+  disconnectedCallback() {
+    this.template.stop().withoutParent()
+  }
 })
