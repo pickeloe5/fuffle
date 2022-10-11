@@ -9,15 +9,6 @@ export const pathEquals = pathA => pathB => {
   return true
 }
 
-export const provideObserver = (node, observer) => {
-  node.fuffle = {...node.fuffle, observer}
-}
+export class ProviderElement extends HTMLElement {}
 
-export const consumeObserver = node => new Promise((resolve, reject) => {
-  setTimeout(() => {
-    while (node = node?.parentNode)
-      if (node.fuffle?.observer)
-        resolve(node.fuffle.observer)
-    reject(new Error('No context found'))
-  }, 0)
-})
+export const EventName = {ATTRIBUTE_CHANGED: 'fuffle-attribute-changed'}

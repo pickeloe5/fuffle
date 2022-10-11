@@ -1,40 +1,71 @@
-import Observer from './Observer.js'
-import {consumeObserver} from './util.js'
+import {EventName} from './util.js'
 
-export default class Component {
+export class ComponentBase {
 
-  static template = null
-  static provider = true
-  static consumer = false
+  static isProvider = false
+
+  static defineElement(tagName) {
+    const ComponentImpl = this
+    const ElementImpl = class extends ComponentElement {
+      static ComponentImpl = ComponentImpl
+      static isProvider = !!ComponentImpl.isProvider
+    }
+    customElements.define(tagName, ElementImpl)
+    return ElementImpl
+  }
+
+  constructor(element) {
+
+  }
+
+  onConnected() {
+
+  }
+
+  onAttributeChanged(name, value) {
+
+  }
+
+  onDisconnected() {
+
+  }
 
 }
 
 export class ComponentElement extends HTMLElement {
 
-  static Component = null
+  static ComponentImpl = null
+  static isProvider = false
 
-  #template
-  #observer = null
+  static get observedAttributes() {
+    return Object.values(this.ComponentImpl.Attribute)
+  }
+
+  #instance
 
   constructor() {
     super()
-    const {Component} = this.constructor
-    if (Component.template)
-      this.#template = Component.template.bake().withParent(this)
-    if (Component.provider) {
-      this.fuffle = {...this.fuffle, provider: true}
-      if (!Component.consumer)
-        this.#observer = this.fuffle.observer = new Observer(this)
-    }
+    this.#instance = new this.constructor.ComponentImpl(this)
+    this.addEventListener(EventName.ATTRIBUTE_CHANGED,
+      this.#onFuffleAttributeChanged)
+  }
+
+  #onFuffleAttributeChanged = ({attributeName, attributeValue}) => {
+    this.#instance.onAttributeChanged(attributeName, attributeValue)
   }
 
   connectedCallback() {
-    if (this.#template && this.#observer)
-      this.#template.start(this.#observer)
+    if (!this.isConnected)
+      return;
+    setTimeout(() => {this.#instance.onConnected()}, 0)
   }
 
   disconnectedCallback() {
-    this.#template?.stop()
+    this.#instance.onDisconnected()
+  }
+
+  attributeChangedCallback(name, previousValue, value) {
+    this.#instance.onAttributeChanged(name, value)
   }
 
 }

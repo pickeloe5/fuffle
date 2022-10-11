@@ -1,16 +1,11 @@
-import {Observer, Template, Component} from '/js/fuffle/index.js'
+import {Observer, Template, util} from '/js/fuffle/index.js'
 
-customElements.define('fuffle-demo', class extends HTMLElement {
+customElements.define('fuffle-demo', class extends util.ProviderElement {
 
   static template = Template.fromNode(
     document.getElementById('demo-template'))
 
   template = this.constructor.template.bake()
-
-  constructor() {
-    super()
-    this.fuffle = {...this.fuffle, observer: Observer.dummy, provider: true}
-  }
 
   connectedCallback() {
     setTimeout(() => {

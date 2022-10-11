@@ -20,6 +20,7 @@ export default class Observer extends EventTarget {
   }
 
   static dummy = new Observer({
+    name: 'item',
     array: ['string'],
     push() {this.array.push('string')},
     pop() {this.array.pop()},

@@ -1,40 +1,36 @@
-export default class FuffleIf extends HTMLElement {
+import {ComponentBase} from './Component.js'
+
+export default class FuffleIf extends ComponentBase {
 
   static Attribute = {CONDITION: 'data-condition'}
 
-  static get observedAttributes() {
-    return [FuffleIf.Attribute.CONDITION]
-  }
-
+  #element = null
   #shadow = null
   #children = []
 
   #value = false
 
-  constructor() {
-    super()
-    this.#shadow = this.attachShadow({mode: 'closed'})
-    this.addEventListener('fuffle-attribute-changed', this.#onAttributeChanged)
+  constructor(element) {
+    super(element)
+    this.#element = element
+    this.#shadow = element.attachShadow({mode: 'closed'})
   }
 
-  connectedCallback() {
-    if (!this.isConnected)
-      return;
-
+  onConnected() {
     if (this.#value)
       this.#append()
   }
 
-  #onAttributeChanged = ({attributeName, attributeValue}) => {
-    if (attributeName !== FuffleIf.Attribute.CONDITION)
+  onAttributeChanged(name, value) {
+    if (name !== FuffleIf.Attribute.CONDITION)
       return;
 
-    const value = !!attributeValue
+    value = !!value
     if (value === this.#value)
       return;
 
     this.#value = value
-    if (!this.isConnected)
+    if (!this.#element.isConnected)
       return;
 
     if (value)
@@ -47,7 +43,8 @@ export default class FuffleIf extends HTMLElement {
     if (this.#children)
       this.#remove()
 
-    this.#children = [...this.childNodes].map(it => it.cloneNode(true))
+    this.#children = [...this.#element.childNodes]
+      .map(it => it.cloneNode(true))
 
     for (const child of this.#children)
       this.#shadow.appendChild(child)
@@ -63,4 +60,5 @@ export default class FuffleIf extends HTMLElement {
     this.#children = null
   }
 }
-customElements.define('fuffle-if', FuffleIf)
+
+export const FuffleIfElement = FuffleIf.defineElement('fuffle-if')

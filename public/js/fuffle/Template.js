@@ -1,10 +1,15 @@
 import Binding from './Binding.js'
+import {ProviderElement, EventName} from './util.js'
 
 export default class Template {
 
   static Text = {SHALLOW: 'shallow', DEEP: 'deep'}
   static Attribute = {TEXT: 'data-f-text'}
-  static Prefix = {ATTRIBUTE: 'data-f:', EVENT: 'data-f-on:'}
+  static Prefix = {
+    ATTRIBUTE: 'data-f:',
+    ATTRIBUTE_STRING: 'data-f-s:',
+    EVENT: 'data-f-on:'
+  }
 
   static fromNode(node) {
     return new Template(
@@ -120,7 +125,7 @@ export class TemplateInstance {
     for (const prefixedName of element.getAttributeNames())
       this.#bindAttribute(element, prefixedName)
 
-    if (!element.fuffle?.provider)
+    if (!element.constructor?.isProvider)
       this.#bindChildren(element.childNodes,
         Template.getTextMode(element, textMode))
   }
@@ -131,11 +136,16 @@ export class TemplateInstance {
       return;
 
     const value = element.getAttribute(prefixedName)
-    element.removeAttribute(prefixedName)
+    if (prefix === Template.Prefix.ATTRIBUTE_STRING)
+      element.removeAttribute(prefixedName)
 
     switch (prefix) {
       case Template.Prefix.ATTRIBUTE:
         this.#bindings.push(new BindingAttribute(element, name, value)
+          .withLocals(this.#locals))
+        break
+      case Template.Prefix.ATTRIBUTE_STRING:
+        this.#bindings.push(new BindingAttribute(element, name, value, true)
           .withLocals(this.#locals))
         break
       case Template.Prefix.EVENT:
@@ -172,19 +182,20 @@ class BindingAttribute extends Binding {
 
   #node = null
   #name = ''
+  #isString = false
 
-  constructor(node, name, value) {
+  constructor(node, name, value, isString = false) {
     super(value)
     this.#node = node
     this.#name = name
+    this.#isString = !!isString
   }
 
   onRun(value) {
-    this.#node.setAttribute(this.#name,
-      typeof value === 'string'
-        ? value : this.state.js)
+    if (this.#isString)
+      this.#node.setAttribute(this.#name, value)
 
-    const event = new Event('fuffle-attribute-changed')
+    const event = new Event(EventName.ATTRIBUTE_CHANGED)
     event.attributeName = this.#name
     event.attributeValue = value
     this.#node.dispatchEvent(event)
