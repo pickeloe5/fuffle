@@ -180,12 +180,14 @@ class BindingAttribute extends Binding {
   }
 
   onRun(value) {
-    this.#node.fuffle = Object.assign(this.#node.fuffle || {}, {
-      attributes: {...this.#node.fuffle.attributes,
-        [this.#name]: value}})
     this.#node.setAttribute(this.#name,
       typeof value === 'string'
         ? value : this.state.js)
+
+    const event = new Event('fuffle-attribute-changed')
+    event.attributeName = this.#name
+    event.attributeValue = value
+    this.#node.dispatchEvent(event)
   }
 }
 

@@ -6,6 +6,9 @@
   </head>
   <body>
     <template id='demo-template'>
+      <fuffle-if data-f:data-condition='this.array.length'>
+        Oh uh hullo
+      </fuffle-if>
       <fuffle-for data-f:data-array='this.array' data-name='item'>
         <span data-f-text>${item}</span>
       </fuffle-for>

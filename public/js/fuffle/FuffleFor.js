@@ -24,6 +24,7 @@ export default class FuffleFor extends HTMLElement {
     this.fuffle = {...this.fuffle, provider: true}
     this.#shadow = this.attachShadow({mode: 'closed'})
     this.#template = new Template([...this.childNodes])
+    this.addEventListener('fuffle-attribute-changed', this.#onAttributeChanged)
   }
 
   #onWrite = ({propertyPath, propertyValue}) => {
@@ -50,6 +51,8 @@ export default class FuffleFor extends HTMLElement {
   }
 
   connectedCallback() {
+    if (!this.isConnected)
+      return;
     consumeObserver(this).then(observer => {
       this.fuffle = {...this.fuffle, observer}
       observer.addEventListener('write', this.#onWrite)
@@ -63,14 +66,17 @@ export default class FuffleFor extends HTMLElement {
   }
 
   attributeChangedCallback(name, previousValue, value) {
-    switch (name) {
-      case FuffleFor.Attribute.ARRAY:
-        this.#setArray(this.fuffle?.attributes?.[name])
-        break
-      case FuffleFor.Attribute.NAME:
-        this.#setIterationName(value)
-        break
-    }
+    if (name !== FuffleFor.Attribute.NAME)
+      return;
+
+    this.#setIterationName(value)
+  }
+
+  #onAttributeChanged = ({attributeName, attributeValue}) => {
+    if (attributeName !== FuffleFor.Attribute.ARRAY)
+      return;
+
+    this.#setArray(attributeValue)
   }
 
   #setArray(value) {

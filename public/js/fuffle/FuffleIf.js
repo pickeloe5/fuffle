@@ -1,6 +1,3 @@
-import Binding from './Binding.js'
-import {consumeObserver} from './util.js'
-
 export default class FuffleIf extends HTMLElement {
 
   static Attribute = {CONDITION: 'data-condition'}
@@ -9,59 +6,61 @@ export default class FuffleIf extends HTMLElement {
     return [FuffleIf.Attribute.CONDITION]
   }
 
-  #binding = null
+  #shadow = null
+  #children = []
+
+  #value = false
 
   constructor() {
     super()
-    this.#binding = new BindingCondition(
-      this.attachShadow({mode: 'closed'}),
-      [...this.childNodes].map(it => it.cloneNode(true)))
+    this.#shadow = this.attachShadow({mode: 'closed'})
+    this.addEventListener('fuffle-attribute-changed', this.#onAttributeChanged)
   }
 
   connectedCallback() {
-    this.#binding.withJs(this.getAttribute(FuffleIf.Attribute.CONDITION))
-
-    consumeObserver(this).then(observer => {
-      this.#binding.start(observer)})
-  }
-
-  disconnectedCallback() {
-    this.#binding?.stop()
-  }
-
-  attributeChangedCallback(name, previousValue, value) {
-    if (name !== FuffleIf.Attribute.CONDITION)
+    if (!this.isConnected)
       return;
-    this.#binding?.withJs(value)
-  }
-}
-customElements.define('fuffle-if', FuffleIf)
 
-class BindingCondition extends Binding {
-
-  #parent = null
-  #children = []
-  #value = false
-
-  constructor(parent, children) {
-    super()
-    this.#parent = parent
-    this.#children = children
+    if (this.#value)
+      this.#append()
   }
 
-  onRun(value) {
-    value = !!value
+  #onAttributeChanged = ({attributeName, attributeValue}) => {
+    if (attributeName !== FuffleIf.Attribute.CONDITION)
+      return;
+
+    const value = !!attributeValue
     if (value === this.#value)
       return;
 
-    if (value) {
-      for (const child of this.#children)
-        this.#parent.appendChild(child)
-    } else {
-      for (const child of this.#children)
-        this.#parent.removeChild(child)
-    }
-
     this.#value = value
+    if (!this.isConnected)
+      return;
+
+    if (value)
+      this.#append()
+    else
+      this.#remove()
+  }
+
+  #append() {
+    if (this.#children)
+      this.#remove()
+
+    this.#children = [...this.childNodes].map(it => it.cloneNode(true))
+
+    for (const child of this.#children)
+      this.#shadow.appendChild(child)
+  }
+
+  #remove() {
+    if (!this.#children)
+      return;
+
+    for (const child of this.#children)
+      this.#shadow.removeChild(child)
+
+    this.#children = null
   }
 }
+customElements.define('fuffle-if', FuffleIf)

@@ -3,5 +3,6 @@ sometimes we want to bind a non-string attribute and use it as a non-string
   so for now we just check if the binding evaluates to a string
   if it does, apply it directly as the attribute value
   else, show the JS as the attribute value, hiding the real value on the node
+  I started using a custom event `fuffle-attribute-changed` to solve this
 
 break iterative rendering out of fuffle-for
