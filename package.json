@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "start": "http-server test -c-1",
+    "build": "build.bat"
+  },
+  "devDependencies": {
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0"
+  }
+}
