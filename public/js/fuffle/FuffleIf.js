@@ -5,6 +5,7 @@ export default class FuffleIf extends ComponentBase {
 
   static Attribute = {CONDITION: 'data-condition'}
 
+  #parentObserver = null
   #element = null
   #shadow = null
   #template = null
@@ -24,9 +25,23 @@ export default class FuffleIf extends ComponentBase {
   }
 
   onConnected(parent) {
-    this.#template.start(parent)
+    this.#parentObserver = parent
     if (this.#value)
-      this.#template.withParent(this.#shadow)
+      this.#append()
+  }
+
+  #append() {
+    if (!this.#parentObserver)
+      return;
+    this.#template
+      .withParent(this.#shadow)
+      .start(this.#parentObserver)
+  }
+
+  #remove() {
+    this.#template
+      .stop()
+      .withoutParent()
   }
 
   onAttributeChanged(name, value) {
@@ -38,13 +53,10 @@ export default class FuffleIf extends ComponentBase {
       return;
 
     this.#value = value
-    if (!this.#element.isConnected)
-      return;
-
     if (value)
-      this.#template.withParent(this.#shadow)
+      this.#append()
     else
-      this.#template.withoutParent()
+      this.#remove()
   }
 }
 

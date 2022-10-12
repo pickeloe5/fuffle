@@ -2,23 +2,70 @@
   <head>
     <meta name='viewport' content='width=device-width, initial-scale=1' />
     <title>Fuffle</title>
-    <script type='module' src='/js/index.js'></script>
+    <script type='module'>
+      import {Component, Template} from '/js/fuffle/index.js'
+
+      class FuffleDemo extends Component {
+
+        static template = Template.fromNode(
+          document.getElementById('demo-template'))
+
+        array = [{string: 'a'}]
+        editing = null
+
+        create() {
+          this.editing = {string: 'a'}
+        }
+
+        change(e) {
+          this.editing.string = e.target.value
+        }
+
+        save() {
+          if (!this.array.includes(this.editing))
+            this.array.push(this.editing)
+          this.editing = null
+        }
+
+        edit(item) {
+          return () => {this.editing = item}
+        }
+      }
+
+      const FuffleDemoElement = FuffleDemo.defineElement('fuffle-demo')
+    </script>
   </head>
   <body>
     <template id='demo-template'>
+
+
       <fuffle-if data-f:data-condition='!this.editing'>
+
         <button data-f-on:click='this.create'>Create</button>
+
       </fuffle-if>
+
+
       <fuffle-if data-f:data-condition='this.editing'>
+
         <input type='text'
-          data-f-on:change='this.change'
-          data-f-value='this.editing?.string' />
+          data-f-on:keyup='this.change'
+          data-f-value='this.editing.string' />
+
         <button data-f-on:click='this.save'>Save</button>
+
       </fuffle-if>
+
+
       <fuffle-for data-f:data-array='this.array'>
+
         <span data-f-text>${it.string}</span>
+
         <button data-f-on:click='this.edit(it)'>Edit</button>
+
       </fuffle-for>
+
+
     </template>
     <fuffle-demo></fuffle-demo>
   </body>

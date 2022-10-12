@@ -16,8 +16,13 @@ export class BindingBase {
     return this
   }
 
+  onStop() {
+
+  }
+
   stop() {
     this.observer?.removeEventListener('write', this.#onWrite)
+    this.onStop()
     return this
   }
 
