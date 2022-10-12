@@ -3,7 +3,9 @@ import {EventName} from './util.js'
 
 export class ComponentBase {
 
-  static isProvider = false
+  static getObserver(instance) {
+    return null
+  }
 
   static defineElement(tagName) {
     const ComponentImpl = this
@@ -35,6 +37,10 @@ export class ComponentBase {
 
 export default class Component extends ComponentBase {
 
+  static getObserver(instance) {
+    return instance.#observer
+  }
+
   static template = null
 
   #element = null
@@ -58,6 +64,25 @@ export default class Component extends ComponentBase {
 }
 
 export class ComponentElement extends HTMLElement {
+
+  static getInstance(element) {
+    return element.#instance
+  }
+
+  static getObserver(node) {
+    const instance = this.getInstance(node)
+    if (!instance)
+      return null
+    const observer = instance.constructor?.getObserver(instance)
+    return observer ? observer : null
+  }
+
+  static getParent(node) {
+    while (node = node.parentNode)
+      if (node instanceof this)
+        return this.getObserver(node)
+    return null
+  }
 
   static ComponentImpl = null
   static isProvider = false
@@ -84,7 +109,10 @@ export class ComponentElement extends HTMLElement {
   connectedCallback() {
     if (!this.isConnected)
       return;
-    setTimeout(() => {this.#instance.onConnected()}, 0)
+    setTimeout(() => {
+      this.#instance.onConnected(
+        ComponentElement.getParent(this)
+    )}, 0)
   }
 
   disconnectedCallback() {

@@ -5,19 +5,25 @@ class FuffleDemo extends Component {
   static template = Template.fromNode(
     document.getElementById('demo-template'))
 
-  array = ['string']
+  array = [{string: 'a'}]
+  editing = null
 
-  push() {
-    this.array.push('string')
+  create() {
+    this.editing = {string: 'a'}
   }
 
-  pop() {
-    this.array.pop()
+  change(e) {
+    this.editing.string = e.target.value
   }
 
-  update() {
-    const index = Math.trunc(Math.random() * this.array.length)
-    this.array[index] += '.'
+  save() {
+    if (!this.array.includes(this.editing))
+      this.array.push(this.editing)
+    this.editing = null
+  }
+
+  edit(item) {
+    return () => {this.editing = item}
   }
 }
 

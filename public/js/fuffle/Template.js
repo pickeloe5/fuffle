@@ -1,10 +1,11 @@
 import Binding from './Binding.js'
-import {ProviderElement, EventName} from './util.js'
+import {ComponentElement} from './Component.js'
+import {EventName} from './util.js'
 
 export default class Template {
 
   static Text = {SHALLOW: 'shallow', DEEP: 'deep'}
-  static Attribute = {TEXT: 'data-f-text'}
+  static Attribute = {TEXT: 'data-f-text', VALUE: 'data-f-value'}
   static Prefix = {
     ATTRIBUTE: 'data-f:',
     ATTRIBUTE_STRING: 'data-f-s:',
@@ -125,12 +126,18 @@ export class TemplateInstance {
     for (const prefixedName of element.getAttributeNames())
       this.#bindAttribute(element, prefixedName)
 
-    if (!element.constructor?.isProvider)
+    if (!(element instanceof ComponentElement))
       this.#bindChildren(element.childNodes,
         Template.getTextMode(element, textMode))
   }
 
   #bindAttribute(element, prefixedName) {
+    if (prefixedName === Template.Attribute.VALUE) {
+      this.#bindings.push(new BindingValue(element,
+        element.getAttribute(prefixedName)))
+      return;
+    }
+
     const [prefix, name] = this.#getAttributePrefix(prefixedName)
     if (!prefix)
       return;
@@ -219,4 +226,19 @@ class BindingEvent extends Binding {
     this.#node.addEventListener(this.#name, value)
     this.#value = value
   }
+}
+
+class BindingValue extends Binding {
+
+  #node = null
+
+  constructor(node, value) {
+    super(value)
+    this.#node = node
+  }
+
+  onRun(value) {
+    this.#node.value = value
+  }
+
 }

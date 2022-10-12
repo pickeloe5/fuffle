@@ -6,15 +6,19 @@
   </head>
   <body>
     <template id='demo-template'>
-      <fuffle-if data-f:data-condition='this.array.length'>
-        Oh uh hullo
+      <fuffle-if data-f:data-condition='!this.editing'>
+        <button data-f-on:click='this.create'>Create</button>
       </fuffle-if>
-      <fuffle-for data-f:data-array='this.array' data-name='item'>
-        <span data-f-text>${item}</span>
+      <fuffle-if data-f:data-condition='this.editing'>
+        <input type='text'
+          data-f-on:change='this.change'
+          data-f-value='this.editing?.string' />
+        <button data-f-on:click='this.save'>Save</button>
+      </fuffle-if>
+      <fuffle-for data-f:data-array='this.array'>
+        <span data-f-text>${it.string}</span>
+        <button data-f-on:click='this.edit(it)'>Edit</button>
       </fuffle-for>
-      <button data-f-on:click='this.push'>Push</button>
-      <button data-f-on:click='this.pop'>Pop</button>
-      <button data-f-on:click='this.update'>Update</button>
     </template>
     <fuffle-demo></fuffle-demo>
   </body>

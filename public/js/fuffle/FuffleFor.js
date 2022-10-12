@@ -5,9 +5,10 @@ import {ComponentBase} from './Component.js'
 export default class FuffleFor extends ComponentBase {
 
   static Attribute = {ARRAY: 'data-array', NAME: 'data-name'}
-  static isProvider = true
 
-  #observer = null
+  #parentObserver = null
+  #arrayObserver = null
+
   #element = null
   #shadow = null
 
@@ -23,13 +24,14 @@ export default class FuffleFor extends ComponentBase {
   }
 
   onDisconnected() {
-    this.#observer?.removeEventListener('write', this.#onWrite)
+    this.#arrayObserver?.removeEventListener('write', this.#onWrite)
 
     while (this.#children.length)
       this.#onDelete()
   }
 
-  onConnected() {
+  onConnected(parent) {
+    this.#parentObserver = parent
     this.#createChildren()
   }
 
@@ -52,22 +54,22 @@ export default class FuffleFor extends ComponentBase {
   }
 
   #onChangeArray(value) {
-    this.#observer?.removeEventListener('write', this.#onWrite)
+    this.#arrayObserver?.removeEventListener('write', this.#onWrite)
     while (this.#children.length)
       this.#onDelete()
 
-    this.#observer = Observer.fromArray(value)
-    if (!this.#observer)
-      return;
+    this.#arrayObserver = Observer.fromArray(value)
+    this.#createChildren()
   }
 
   #createChildren() {
-    if (!this.#observer)
+    if (!this.#arrayObserver || !this.#parentObserver)
       return;
-    for (const index in this.#observer.target)
+
+    for (const index in this.#arrayObserver.target)
       this.#onCreate(index)
 
-    this.#observer.addEventListener('write', this.#onWrite)
+    this.#arrayObserver.addEventListener('write', this.#onWrite)
   }
 
   #onWrite = ({propertyPath, propertyValue}) => {
@@ -82,11 +84,11 @@ export default class FuffleFor extends ComponentBase {
       this.#onDelete()
   }
 
-  #onCreate(index, value = this.#observer.target[index]) {
+  #onCreate(index, value = this.#arrayObserver.target[index]) {
     this.#children.push(this.#template.bake()
       .withLocals(this.#makeLocals(index))
       .withParent(this.#shadow)
-      .start(this.#observer))
+      .start(this.#parentObserver))
   }
 
   #onDelete() {
@@ -94,7 +96,7 @@ export default class FuffleFor extends ComponentBase {
   }
 
   #makeLocals(index) {
-    return {[this.#iterationName]: () => this.#observer.proxy[index]}
+    return {[this.#iterationName]: () => this.#arrayObserver.proxy[index]}
   }
 
 }

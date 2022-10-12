@@ -1,4 +1,5 @@
 import {ComponentBase} from './Component.js'
+import {TemplateInstance} from './Template.js'
 
 export default class FuffleIf extends ComponentBase {
 
@@ -6,19 +7,26 @@ export default class FuffleIf extends ComponentBase {
 
   #element = null
   #shadow = null
-  #children = []
+  #template = null
 
   #value = false
 
   constructor(element) {
     super(element)
     this.#element = element
+    this.#template = new TemplateInstance(
+      [...element.childNodes].map(it => it.cloneNode(true)))
     this.#shadow = element.attachShadow({mode: 'closed'})
   }
 
-  onConnected() {
+  onDisconnected() {
+    this.#template.stop()
+  }
+
+  onConnected(parent) {
+    this.#template.start(parent)
     if (this.#value)
-      this.#append()
+      this.#template.withParent(this.#shadow)
   }
 
   onAttributeChanged(name, value) {
@@ -34,30 +42,9 @@ export default class FuffleIf extends ComponentBase {
       return;
 
     if (value)
-      this.#append()
+      this.#template.withParent(this.#shadow)
     else
-      this.#remove()
-  }
-
-  #append() {
-    if (this.#children)
-      this.#remove()
-
-    this.#children = [...this.#element.childNodes]
-      .map(it => it.cloneNode(true))
-
-    for (const child of this.#children)
-      this.#shadow.appendChild(child)
-  }
-
-  #remove() {
-    if (!this.#children)
-      return;
-
-    for (const child of this.#children)
-      this.#shadow.removeChild(child)
-
-    this.#children = null
+      this.#template.withoutParent()
   }
 }
 
