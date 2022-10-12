@@ -1,1 +1,3 @@
-import {Observer} from './fuffle.js'
+import testObserver from './observer.js'
+
+testObserver()
