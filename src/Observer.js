@@ -4,7 +4,12 @@ class ObserverProxy {
   static instance = new ObserverProxy()
 }
 
-export default class Observer extends EventTarget {
+/**
+ * Watches for operations on an object
+ *
+ * @param {Object} target
+ */
+class Observer extends EventTarget {
 
   static resolve(value) {
     if (!value)
@@ -45,7 +50,18 @@ export default class Observer extends EventTarget {
     return this
   }
 
+  /**
+   * Stops tracking reads and returns those that have been tracked.
+   *
+   * @callback Observer#StopTrackingReads
+   * @returns {string[][]} All properties read since tracking started.
+   */
+
   #reads = null
+  /**
+   * Starts tracking reads from the target object.
+   * @returns {Observer#StopTrackingReads} Stops tracking and returns reads.
+  */
   trackReads() {
     if (this.#reads)
       throw new Error('Concurrent modification exception')
@@ -66,6 +82,20 @@ export default class Observer extends EventTarget {
     this.parent?.onRead([this.#name, ...path])
   }
 
+  /**
+   * Fired when a property changes on the target or any of its children.
+   *
+   * @event Observer#write
+   * @type {object}
+   * @property {string[]} propertyPath - Path to written property
+   * @property {?} propertyValue - Value written to property
+   */
+
+  /**
+   * Fires write event and bubbles up to parent.
+   *
+   * @fires Observer#write
+   */
   onWrite(path, value) {
     const event = new Event('write')
     event.propertyPath = path
@@ -124,3 +154,5 @@ export default class Observer extends EventTarget {
   }
 
 }
+
+export default Observer

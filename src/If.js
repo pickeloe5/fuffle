@@ -1,5 +1,5 @@
-import {ComponentBase} from './Component.js'
-import {TemplateInstance} from './Template.js'
+import ComponentBase from './Component/Base.js'
+import TemplateInstance from './Template/Instance.js'
 
 export default class FuffleIf extends ComponentBase {
 

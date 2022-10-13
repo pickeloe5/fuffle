@@ -1,6 +1,6 @@
 import Observer from './Observer.js'
-import Template from './Template.js'
-import {ComponentBase} from './Component.js'
+import Template from './Template/index.js'
+import ComponentBase from './Component/Base.js'
 
 export default class FuffleFor extends ComponentBase {
 

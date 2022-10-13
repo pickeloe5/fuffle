@@ -9,6 +9,4 @@ export const pathEquals = pathA => pathB => {
   return true
 }
 
-export class ProviderElement extends HTMLElement {}
-
 export const EventName = {ATTRIBUTE_CHANGED: 'fuffle-attribute-changed'}

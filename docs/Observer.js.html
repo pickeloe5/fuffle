@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Source: Observer.js</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/jaguar.css">
+    
+    
+    <script>
+    var config = {"monospaceLinks":false,"cleverLinks":false,"default":{"outputSourceFiles":true}};
+    </script>
+    
+
+    
+</head>
+<body>
+<div id="wrap" class="clearfix">
+    
+<div class="navigation">
+    <h3 class="applicationName"><a href="index.html"></a></h3>
+
+    <div class="search">
+        <input id="search" type="text" class="form-control input-sm" placeholder="Search Documentations">
+    </div>
+    <ul class="list">
+    
+        <li class="item" data-name="Binding">
+            <span class="title">
+                <a href="Binding.html">Binding</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Typedefs</span>
+            
+                <li data-name="Binding#GetLocalValue"><a href="Binding.html#GetLocalValue">GetLocalValue</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="Binding#withJs"><a href="Binding.html#withJs">withJs</a></li>
+            
+                <li data-name="Binding#withLocals"><a href="Binding.html#withLocals">withLocals</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="BindingBase">
+            <span class="title">
+                <a href="BindingBase.html">BindingBase</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="BindingBase#onRun"><a href="BindingBase.html#onRun">onRun</a></li>
+            
+                <li data-name="BindingBase#onStop"><a href="BindingBase.html#onStop">onStop</a></li>
+            
+                <li data-name="BindingBase#run"><a href="BindingBase.html#run">run</a></li>
+            
+                <li data-name="BindingBase#runTracked"><a href="BindingBase.html#runTracked">runTracked</a></li>
+            
+                <li data-name="BindingBase#start"><a href="BindingBase.html#start">start</a></li>
+            
+                <li data-name="BindingBase#stop"><a href="BindingBase.html#stop">stop</a></li>
+            
+                <li data-name="BindingBase#withOnRun"><a href="BindingBase.html#withOnRun">withOnRun</a></li>
+            
+                <li data-name="BindingBase#withRun"><a href="BindingBase.html#withRun">withRun</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="Component">
+            <span class="title">
+                <a href="Component.html">Component</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="Component#template"><a href="Component.html#template">template</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="Component.getObserver"><a href="Component.html#.getObserver">getObserver</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="ComponentBase">
+            <span class="title">
+                <a href="ComponentBase.html">ComponentBase</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="ComponentBase.defineElement"><a href="ComponentBase.html#.defineElement">defineElement</a></li>
+            
+                <li data-name="ComponentBase.fromElement"><a href="ComponentBase.html#.fromElement">fromElement</a></li>
+            
+                <li data-name="ComponentBase.getObserver"><a href="ComponentBase.html#.getObserver">getObserver</a></li>
+            
+                <li data-name="ComponentBase#onAttributeChanged"><a href="ComponentBase.html#onAttributeChanged">onAttributeChanged</a></li>
+            
+                <li data-name="ComponentBase#onConnected"><a href="ComponentBase.html#onConnected">onConnected</a></li>
+            
+                <li data-name="ComponentBase#onDisconnected"><a href="ComponentBase.html#onDisconnected">onDisconnected</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="ComponentElement">
+            <span class="title">
+                <a href="ComponentElement.html">ComponentElement</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="ComponentElement.getInstance"><a href="ComponentElement.html#.getInstance">getInstance</a></li>
+            
+                <li data-name="ComponentElement.getObserver"><a href="ComponentElement.html#.getObserver">getObserver</a></li>
+            
+                <li data-name="ComponentElement.getParent"><a href="ComponentElement.html#.getParent">getParent</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="Observer">
+            <span class="title">
+                <a href="Observer.html">Observer</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Typedefs</span>
+            
+                <li data-name="Observer#StopTrackingReads"><a href="Observer.html#StopTrackingReads">StopTrackingReads</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="Observer#onWrite"><a href="Observer.html#onWrite">onWrite</a></li>
+            
+                <li data-name="Observer#trackReads"><a href="Observer.html#trackReads">trackReads</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            <span class="subtitle">Events</span>
+            
+                <li data-name="Observer#event:write"><a href="Observer.html#event:write">write</a></li>
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="Template">
+            <span class="title">
+                <a href="Template.html">Template</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="Template.fromNode"><a href="Template.html#.fromNode">fromNode</a></li>
+            
+                <li data-name="Template#bake"><a href="Template.html#bake">bake</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="TemplateInstance">
+            <span class="title">
+                <a href="TemplateInstance.html">TemplateInstance</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="TemplateInstance#Text"><a href="TemplateInstance.html#Text">Text</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="TemplateInstance#start"><a href="TemplateInstance.html#start">start</a></li>
+            
+                <li data-name="TemplateInstance#stop"><a href="TemplateInstance.html#stop">stop</a></li>
+            
+                <li data-name="TemplateInstance#withLocals"><a href="TemplateInstance.html#withLocals">withLocals</a></li>
+            
+                <li data-name="TemplateInstance#withoutParent"><a href="TemplateInstance.html#withoutParent">withoutParent</a></li>
+            
+                <li data-name="TemplateInstance#withParent"><a href="TemplateInstance.html#withParent">withParent</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+    </ul>
+</div>
+    <div class="main">
+        <h1 class="page-title" data-filename="Observer.js.html">Source: Observer.js</h1>
+        
+
+
+    
+    <section>
+        <article>
+            <pre id="source-code" class="prettyprint source "><code>import {pathEquals} from './util.js'
+
+class ObserverProxy {
+  static instance = new ObserverProxy()
+}
+
+/**
+ * Watches for operations on an object
+ *
+ * @param {Object} target
+ */
+class Observer extends EventTarget {
+
+  static resolve(value) {
+    if (!value)
+      return null
+    if (!(value instanceof ObserverProxy))
+      return null
+    return value.observer
+  }
+
+  static fromArray(value) {
+    const observer = Observer.resolve(value)
+    return Array.isArray(observer?.target) ? observer : null
+  }
+
+  target = null
+  proxy = null
+
+  #name = null
+  parent = null
+  #children = null
+
+  constructor(target, shallow = false) {
+    super()
+    this.target = target
+
+    if (!shallow) {
+      this.#children = {}
+      for (const property in target)
+        this.#adopt(property)
+    }
+
+    this.proxy = this.#makeProxy()
+  }
+
+  withParent(parent, name) {
+    this.parent = parent
+    this.#name = name
+    return this
+  }
+
+  /**
+   * Stops tracking reads and returns those that have been tracked.
+   *
+   * @callback Observer#StopTrackingReads
+   * @returns {string[][]} All properties read since tracking started.
+   */
+
+  #reads = null
+  /**
+   * Starts tracking reads from the target object.
+   * @returns {Observer#StopTrackingReads} Stops tracking and returns reads.
+  */
+  trackReads() {
+    if (this.#reads)
+      throw new Error('Concurrent modification exception')
+    this.#reads = []
+    return this.#stopTrackingReads
+  }
+
+  #stopTrackingReads = () => {
+    const reads = [...this.#reads]
+    this.#reads = null
+    return reads
+  }
+
+  onRead(path) {
+    if (this.#reads &amp;&amp; !this.#reads.includes(pathEquals(path)))
+      this.#reads.push(path)
+
+    this.parent?.onRead([this.#name, ...path])
+  }
+
+  /**
+   * Fired when a property changes on the target or any of its children.
+   *
+   * @event Observer#write
+   * @type {object}
+   * @property {string[]} propertyPath - Path to written property
+   * @property {?} propertyValue - Value written to property
+   */
+
+  /**
+   * Fires write event and bubbles up to parent.
+   *
+   * @fires Observer#write
+   */
+  onWrite(path, value) {
+    const event = new Event('write')
+    event.propertyPath = path
+    event.propertyValue = value
+    this.dispatchEvent(event)
+
+    this.parent?.onWrite([this.#name, ...path], value)
+  }
+
+  #adopt(property, value = this.target[property]) {
+    if (!this.#children)
+      return;
+
+    if (!value || typeof value !== 'object' || value === this) {
+      if (this.#children.hasOwnProperty(property)) {
+        this.#children[property].parent = null
+        delete this.#children[property]
+      }
+      return;
+    }
+
+    this.#children[property] = new Observer(value)
+      .withParent(this, property)
+  }
+
+  #makeProxy() {
+    return new Proxy(this.target, {
+      getPrototypeOf(target) {
+        return ObserverProxy.instance
+      },
+      get: (target, property, receiver) => {
+        if (property === 'observer')
+          return this
+
+        let result
+        if (this.#children?.hasOwnProperty(property))
+          result = this.#children[property].proxy
+        else
+          result = Reflect.get(target, property, receiver)
+
+        if (typeof result === 'function')
+          result = result.bind(receiver)
+
+        this.onRead([property])
+        return result
+      },
+      set: (target, property, value, receiver) => {
+        const result = Reflect.set(target, property, value, receiver)
+
+        this.#adopt(property, value)
+        this.onWrite([property], value)
+
+        return result
+      },
+    })
+  }
+
+}
+
+export default Observer
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+
+
+        
+
+        <footer>
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Thu Oct 13 2022 14:40:22 GMT-0400 (Eastern Daylight Time)
+        </footer>
+    </div>
+</div>
+<script>prettyPrint();</script>
+<script src="scripts/jaguar.js"></script>
+</body>
+</html>
