@@ -1,5 +1,6 @@
 import Observer from './Observer.js'
 import {EventName} from './util.js'
+import {TemplateInstance} from './Template.js'
 
 export class ComponentBase {
 
@@ -54,11 +55,17 @@ export default class Component extends ComponentBase {
 
   onConnected() {
     this.#observer = new Observer(this)
-    this.#template?.withParent(this.#element).start(this.#observer)
+    if (!this.#template) {
+      const children = [...this.#element.childNodes]
+      for (const child of children)
+        this.#element.removeChild(child)
+      this.#template = new TemplateInstance(children)
+    }
+    this.#template.withParent(this.#element).start(this.#observer)
   }
 
   onDisconnected() {
-    this.#template?.stop()
+    this.#template.stop().withoutParent()
   }
 
 }
