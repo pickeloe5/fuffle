@@ -4,6 +4,12 @@ import {TemplateInstance} from './Template.js'
 
 export class ComponentBase {
 
+  static fromElement(element) {
+    if (!(element instanceof ComponentElement))
+      return null
+    return ComponentElement.getInstance(element)
+  }
+
   static getObserver(instance) {
     return null
   }
