@@ -19,7 +19,7 @@ export default class FuffleFor extends ComponentBase {
   constructor(element) {
     super(element)
     this.#element = element
-    this.#shadow = element.attachShadow({mode: 'closed'})
+    this.#shadow = element.attachShadow({mode: 'open'})
     this.#template = new Template([...element.childNodes])
   }
 

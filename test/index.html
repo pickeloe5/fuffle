@@ -4,6 +4,21 @@
     <script type='module' src='/index.js'></script>
   </head>
   <body>
-    
+    <template id='test-template-1'>
+      <span data-test-1
+        data-f-text
+        data-f-on:test-1='this.onEvent'
+        data-f-s:style='this.style'
+      >${this.text}</span>
+    </template>
+    <template id='test-template-2'>
+      <fuffle-if data-f:data-condition='this.condition'>
+        <span data-test-2-1>Text</span>
+      </fuffle-if>
+      <fuffle-for data-f:data-array='this.array'>
+        <span data-f-s:data-test-2-2='it.id' data-f-text>${it.text}</span>
+      </fuffle-for>
+    </template>
+    <test-element-2></test-element-2>
   </body>
 </html>

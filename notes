@@ -8,3 +8,6 @@ BindingBase could use some tuning up
 when ['array', '0'] is a dependency of a binding
   and ['array'] is wrote
   we should still re-run the binding
+
+fuffle-if should be able operate without a shadow node
+  there's also a strong use-case for a component with no template/shadow

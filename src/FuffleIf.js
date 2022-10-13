@@ -17,7 +17,7 @@ export default class FuffleIf extends ComponentBase {
     this.#element = element
     this.#template = new TemplateInstance(
       [...element.childNodes].map(it => it.cloneNode(true)))
-    this.#shadow = element.attachShadow({mode: 'closed'})
+    this.#shadow = element.attachShadow({mode: 'open'})
   }
 
   onDisconnected() {
