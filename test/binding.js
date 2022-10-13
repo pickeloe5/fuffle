@@ -7,31 +7,27 @@ export function testBasicBinding() {
   const observer = new Observer({[propertyName]: propertyValueBefore})
 
   let bindingRun = false, bindingRerun = false
-  const binding = new BindingBase(observer)
+  new BindingBase(observer)
+    .withRun(function() {
+      return this[propertyName]
+    })
+    .withOnRun(value => {
+      if (!bindingRun && !bindingRerun) {
 
-  binding.run = function() {
-    return this[propertyName]
-  }
+        if (value !== propertyValueBefore)
+          throw new Error(`Expected first run to evaluate to initial value`)
 
-  binding.onRun = value => {
-    if (!bindingRun && !bindingRerun) {
+        bindingRun = true
+      } else if (bindingRun && !bindingRerun) {
 
-      if (value !== propertyValueBefore)
-        throw new Error(`Expected first run to evaluate to initial value`)
+        if (value !== propertyValueAfter)
+          throw new Error(`Expected second run to evaluate to updated value`)
 
-      bindingRun = true
-    } else if (bindingRun && !bindingRerun) {
-
-      if (value !== propertyValueAfter)
-        throw new Error(`Expected second run to evaluate to updated value`)
-
-      bindingRerun = true
-    } else {
-      throw new Error(`Expected binding to be run only twice`)
-    }
-  }
-
-  binding.start()
+        bindingRerun = true
+      } else {
+        throw new Error(`Expected binding to be run only twice`)
+      }
+    }).start()
   observer.proxy[propertyName] = propertyValueAfter
   if (!bindingRun || !bindingRerun)
     throw new Error(`Expected binding to be run twice`)
@@ -51,17 +47,15 @@ export function testJsBinding() {
     [properties.names[1]]: {[properties.names[2]]: properties.values.before[1]}
   })
 
-  const binding = new Binding(
-    `this.${
-      properties.names[0]
-    } + this.${
-      properties.names[1]
-    }.${
-      properties.names[2]
-    }`)
-
   let bindingRun = 0
-  binding.onRun = value => {
+  new Binding(
+      `this.${
+        properties.names[0]
+      } + this.${
+        properties.names[1]
+      }.${
+        properties.names[2]
+      }`).withOnRun(value => {
     if (bindingRun === 0) {
 
       if (value !== properties.values.before[0] + properties.values.before[1])
@@ -83,8 +77,7 @@ export function testJsBinding() {
     } else {
       throw new Error(`Expected binding to only be run three times`)
     }
-  }
-  binding.start(observer)
+  }).start(observer)
   observer.proxy[properties.names[0]] = properties.values.after[0]
   observer.proxy
     [properties.names[1]]

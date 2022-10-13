@@ -29,9 +29,17 @@ export class BindingBase {
   run() {
 
   }
+  withRun(run) {
+    this.run = run
+    return this
+  }
 
   onRun(value) {
 
+  }
+  withOnRun(onRun) {
+    this.onRun = onRun
+    return this
   }
 
   runTracked() {
