@@ -64,7 +64,7 @@ export default class FuffleFor extends ComponentBase {
   }
 
   #onChangeLocals() {
-    for (const i in this.#instances)
+    for (let i = 0; i < this.#instances.length; i++)
       this.#instances[i]
         .withLocals(this.#makeLocals(i))
   }
@@ -80,8 +80,8 @@ export default class FuffleFor extends ComponentBase {
     if (!this.#arrayObserver || !this.#parentObserver)
       return;
 
-    for (const index in this.#arrayObserver.target)
-      this.#onCreate(index)
+    for (let i = 0; i < this.#arrayObserver.target.length; i++)
+      this.#onCreate(i)
 
     this.#arrayObserver.addEventListener('write', this.#onWrite)
   }
