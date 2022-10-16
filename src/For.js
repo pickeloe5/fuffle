@@ -4,41 +4,58 @@ import ComponentBase from './Component/Base.js'
 
 export default class FuffleFor extends ComponentBase {
 
-  static Attribute = {ARRAY: 'data-array', NAME: 'data-name'}
+  static Attribute = {
+    ARRAY: 'data-array',
+    NAME: 'data-name',
+    INDEX_NAME: 'data-index-name'
+  }
 
   #parentObserver = null
   #arrayObserver = null
 
   #element = null
-  #shadow = null
+  #children = null
 
   #template = null
-  #children = []
+  #instances = []
+
   #iterationName = 'it'
+  #indexName = 'index'
 
   constructor(element) {
     super(element)
     this.#element = element
-    this.#shadow = element.attachShadow({mode: 'open'})
-    this.#template = new Template([...element.childNodes])
   }
 
   onDisconnected() {
     this.#arrayObserver?.removeEventListener('write', this.#onWrite)
+    this.#deleteInstances()
+    this.#parentObserver = null
 
-    while (this.#children.length)
-      this.#onDelete()
+    if (this.#children)
+      for (const child of this.#children)
+        this.#element.appendChild(child)
   }
 
   onConnected(parent) {
     this.#parentObserver = parent
-    this.#createChildren()
+    this.#children = [...this.#element.childNodes]
+    this.#template = new Template(this.#children)
+
+    for (const child of this.#children)
+      this.#element.removeChild(child)
+    this.#createInstances()
   }
 
   onAttributeChanged(name, value) {
     switch (name) {
       case FuffleFor.Attribute.NAME:
-        this.#onChangeIterationName(value)
+        this.#iterationName = value
+        this.#onChangeLocals()
+        break
+      case FuffleFor.Attribute.INDEX_NAME:
+        this.#indexName = value
+        this.#onChangeLocals()
         break
       case FuffleFor.Attribute.ARRAY:
         this.#onChangeArray(value)
@@ -46,23 +63,20 @@ export default class FuffleFor extends ComponentBase {
     }
   }
 
-  #onChangeIterationName(name) {
-    this.#iterationName = name
-
-    for (const i in this.#children)
-      this.#children[i].withLocals(this.#makeLocals(i))
+  #onChangeLocals() {
+    for (const i in this.#instances)
+      this.#instances[i]
+        .withLocals(this.#makeLocals(i))
   }
 
   #onChangeArray(value) {
     this.#arrayObserver?.removeEventListener('write', this.#onWrite)
-    while (this.#children.length)
-      this.#onDelete()
-
+    this.#deleteInstances()
     this.#arrayObserver = Observer.fromArray(value)
-    this.#createChildren()
+    this.#createInstances()
   }
 
-  #createChildren() {
+  #createInstances() {
     if (!this.#arrayObserver || !this.#parentObserver)
       return;
 
@@ -70,6 +84,11 @@ export default class FuffleFor extends ComponentBase {
       this.#onCreate(index)
 
     this.#arrayObserver.addEventListener('write', this.#onWrite)
+  }
+
+  #deleteInstances() {
+    while (this.#instances.length)
+      this.#onDelete()
   }
 
   #onWrite = ({propertyPath, propertyValue}) => {
@@ -85,18 +104,23 @@ export default class FuffleFor extends ComponentBase {
   }
 
   #onCreate(index, value = this.#arrayObserver.target[index]) {
-    this.#children.push(this.#template.bake()
+    this.#instances.push(this.#template.bake()
       .withLocals(this.#makeLocals(index))
-      .withParent(this.#shadow)
+      .withParent(this.#element)
       .start(this.#parentObserver))
   }
 
   #onDelete() {
-    this.#children.pop().stop().withoutParent()
+    this.#instances.pop().stop().withoutParent()
   }
 
   #makeLocals(index) {
-    return {[this.#iterationName]: () => this.#arrayObserver.proxy[index]}
+    return {
+      [this.#iterationName]: () =>
+        this.#arrayObserver.proxy[index],
+      [this.#indexName]: () =>
+        index
+    }
   }
 
 }

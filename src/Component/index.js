@@ -1,5 +1,5 @@
 import Observer from '../Observer.js'
-import TemplateInstance from '../Template/index.js'
+import Template from '../Template/index.js'
 import ComponentBase from './Base.js'
 
 /**
@@ -27,6 +27,7 @@ class Component extends ComponentBase {
   #element = null
   #observer = null
   #template = this.constructor.template?.bake()
+  #children = null
 
   constructor(element) {
     super(element)
@@ -36,16 +37,21 @@ class Component extends ComponentBase {
   onConnected() {
     this.#observer = new Observer(this)
     if (!this.#template) {
-      const children = [...this.#element.childNodes]
-      for (const child of children)
+      this.#children = [...this.#element.childNodes]
+      for (const child of this.#children)
         this.#element.removeChild(child)
-      this.#template = new TemplateInstance(children)
+      this.#template = new Template(this.#children).bake()
     }
     this.#template.withParent(this.#element).start(this.#observer)
   }
 
   onDisconnected() {
-    this.#template.stop().withoutParent()
+    this.#template?.stop().withoutParent()
+    if (this.#children) {
+      for (const child of this.#children)
+        this.#element.appendChild(child)
+      this.#children = null
+    }
   }
 
 }

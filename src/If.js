@@ -5,27 +5,29 @@ export default class FuffleIf extends ComponentBase {
 
   static Attribute = {CONDITION: 'data-condition'}
 
-  #parentObserver = null
   #element = null
-  #shadow = null
   #template = null
+  #children = null
 
+  #parentObserver = null
   #value = false
 
   constructor(element) {
     super(element)
     this.#element = element
-    this.#template = new TemplateInstance(
-      [...element.childNodes].map(it => it.cloneNode(true)))
-    this.#shadow = element.attachShadow({mode: 'open'})
   }
 
   onDisconnected() {
-    this.#template.stop()
+    this.#template?.stop().withoutParent()
+    this.#template = null
   }
 
   onConnected(parent) {
     this.#parentObserver = parent
+    this.#children = [...this.#element.childNodes]
+    for (const child of this.#children)
+      this.#element.removeChild(child)
+    this.#template = new TemplateInstance(this.#children)
     if (this.#value)
       this.#append()
   }
@@ -34,7 +36,7 @@ export default class FuffleIf extends ComponentBase {
     if (!this.#parentObserver)
       return;
     this.#template
-      .withParent(this.#shadow)
+      .withParent(this.#element)
       .start(this.#parentObserver)
   }
 
