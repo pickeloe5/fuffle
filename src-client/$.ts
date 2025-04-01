@@ -2,6 +2,9 @@ export default class DomUtil {
     static element(tagName: string) {
         return new DomUtil(document.createElement(tagName))
     }
+    static text(text: string) {
+        return new DomUtil(document.createTextNode(text))
+    }
     static resolveArray(child: unknown[]): Node[] {
         const nodes = []
         for (const grandchild of child)

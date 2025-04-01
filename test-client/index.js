@@ -1,25 +1,18 @@
 import Fuffle from '/script/Fuffle.js'
 const {$} = Fuffle
 
-class FuffleDemo extends Fuffle.Part {
-    static tagName = 'fuffle-demo'
-    state = {counter: 25}
-    constructor() {
-        super()
-    }
-    #onClickCounter = this.bindFunction(() => {
-        this.state.counter++
+addEventListener('load', () => {
+    const stateWrapper = new Fuffle.StateWrapper({
+        counter: 0
     })
-    render() {
-        const $button = $.element('button').text('Click here')
-        this.bindEvent($button, this.#onClickCounter)
-        return [
-            this.bindText('counter'),
-            $.element('br'),
-            $.element('button').text('Click here').on('click', () => {
-                this.#onClickCounter()
-            })
-        ]
-    }
-}
-FuffleDemo.define()
+    
+    const text = stateWrapper.text(state => String(state.counter + 1))
+
+    const $button = $.element('button')
+        .text('Click me')
+        .on('click', () => {
+            stateWrapper.update(state => {state.counter++})
+        })
+
+    document.body.append(text, $button.node)
+})
