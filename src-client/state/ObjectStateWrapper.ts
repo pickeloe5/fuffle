@@ -1,9 +1,9 @@
-import type StateWrapper from './StateWrapper'
+import StateWrapper from './StateWrapper'
 
-export default class ObjectStateWrapper<T extends object> implements StateWrapper<T> {
-    state: T
+export default class ObjectStateWrapper<T extends object> extends StateWrapper<T> {
     readers: ObjectStateReader<T>[] = []
     constructor(state: T) {
+        super()
         this.state = state
     }
     read(callback: (state: T) => void) {

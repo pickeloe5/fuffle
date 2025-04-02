@@ -1,6 +1,21 @@
-export default interface StateWrapper<T> {
+export default class StateWrapper<T> {
     state: T
-    read(callback: (state: T) => void): void
-    write(state: T): void
-    update(callback: (state: T) => void): void
+    read(_callback: (state: T) => void) {}
+    write(_state: T) {}
+    update(_callback: (state: T) => void) {}
+    text(callback: (state: T) => string = defaultTextCallback): Text {
+        const node = document.createTextNode('')
+        this.read((state: T) => {
+            node.nodeValue = callback(state)
+        })
+        return node
+    }
+}
+
+const defaultTextCallback = <T>(state: T): string => {
+    if (typeof state === 'string')
+        return state
+    if (typeof state === 'number')
+        return String(state)
+    return ''
 }
