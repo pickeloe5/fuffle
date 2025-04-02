@@ -16,5 +16,5 @@ addEventListener('load', () => {
     const node3 = document.createTextNode('')
     objectStateWrapper.read(state => {node3.nodeValue = state.b})
     document.body.appendChild(node3)
-    setTimeout(() => {objectStateWrapper.write(state => {state.b = 'b2'})}, 3000)
+    setTimeout(() => {objectStateWrapper.update(state => {state.b = 'b2'})}, 3000)
 })

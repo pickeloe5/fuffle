@@ -1,41 +1,17 @@
-export class StateWrapper<T> {
+import type StateWrapper from './StateWrapper'
+
+export default class ObjectStateWrapper<T extends object> implements StateWrapper<T> {
     state: T
-    listeners: Array<(state: T) => void> = []
+    readers: ObjectStateReader<T>[] = []
     constructor(state: T) {
         this.state = state
     }
     read(callback: (state: T) => void) {
-        this.listeners.push(callback)
-        callback(this.state)
+        const reader = new ObjectStateReader(this, callback)
+        this.readers.push(reader)
+        reader.read()
     }
     write(state: T) {
-        this.state = state
-        for (const listener of this.listeners)
-            listener(state)
-    }
-}
-
-export class ObjectStateWrapper<T extends object> {
-    state: T
-    listeners: ObjectStateListener<T>[] = []
-    constructor(state: T) {
-        this.state = state
-    }
-    read(callback: (state: T) => void) {
-        const listener = new ObjectStateListener(this, callback)
-        this.listeners.push(listener)
-        listener.fire()
-    }
-    write(objectOrFunction: T | ((state: T) => void)) {
-        const keys: ObjectStateKey[] =
-            typeof objectOrFunction === 'function'
-                ? this.#writeFunction(objectOrFunction)
-                : this.#writeObject(objectOrFunction)
-        for (const listener of this.listeners)
-            if (listener.check(keys))
-                listener.fire()
-    }
-    #writeObject(state: T): ObjectStateKey[] {
         const keys: ObjectStateKey[] = []
         for (const key in this.state)
             if (state[key] !== this.state[key])
@@ -44,19 +20,24 @@ export class ObjectStateWrapper<T extends object> {
             if (!(key in this.state))
                 keys.push(key)
         this.state = {...state}
-        return keys
+        this.#onSet(keys)
     }
-    #writeFunction(callback: (state: T) => void): ObjectStateKey[] {
+    update(callback: (state: T) => void) {
         const state = {...this.state}
         const observer = new ObjectStateObserver(state)
         callback(observer.proxy)
         observer.stop()
         this.state = {...state}
-        return [...observer.sets]
+        this.#onSet([...observer.sets])
+    }
+    #onSet(keys: ObjectStateKey[]) {
+        for (const reader of this.readers)
+            if (reader.checkDependencies(keys))
+                reader.read()
     }
 }
 
-export class ObjectStateListener<T extends object> {
+export class ObjectStateReader<T extends object> {
     #stateWrapper: ObjectStateWrapper<T>
     #callback: (state: T) => void
     #dependencies: ObjectStateKey[] = []
@@ -67,19 +48,16 @@ export class ObjectStateListener<T extends object> {
         this.#stateWrapper = stateWrapper
         this.#callback = callback
     }
-    fire() {
+    read() {
         const observer = new ObjectStateObserver({...this.#stateWrapper.state})
         this.#callback(observer.proxy)
         observer.stop()
         this.#dependencies = [...observer.gets]
     }
-    check(keys: ObjectStateKey[]) {
+    checkDependencies(keys: ObjectStateKey[]) {
         return keys.some(key => this.#dependencies.includes(key))
     }
 }
-
-type ObjectStatePath = ObjectStateKey[]
-type ObjectStateKey = string | number
 
 class ObjectStateObserver<T extends object> {
     proxy: T
@@ -115,10 +93,5 @@ class ObjectStateObserver<T extends object> {
     }
 }
 
-export default function state<T>(value: T): StateWrapper<T> {
-    return new StateWrapper(value)
-}
-
-export function objectState<T extends object>(value: T): ObjectStateWrapper<T> {
-    return new ObjectStateWrapper(value)
-}
+type ObjectStatePath = ObjectStateKey[]
+type ObjectStateKey = string | number
