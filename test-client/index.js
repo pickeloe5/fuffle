@@ -1,22 +1,10 @@
 import Fuffle from '/script/Fuffle.js'
-const {$} = Fuffle
+// const {$} = Fuffle
 
 addEventListener('load', () => {
-    const [readState, updateState] = Fuffle.state({
-        text: 25,
-        // items: [
-        //     {name: 'a', counter: 24},
-        //     {name: 'b', counter: 25}
-        // ]
-    })
-    new $(document.body).add(
-        Fuffle.text(readState.text),
-        $.element('button').text('Click here').on('click', () => {
-            Fuffle.update(state.text, )
-        })
-    )
-    document.body.appendChild(Fuffle.text(state.text))
-    // Fuffle.array(state.items)
-    //     .map(item => Fuffle.text(item.name))
-    //     .join(document.body)
+    const stateWrapper = Fuffle.state('hi!')
+    const node = document.createTextNode('')
+    stateWrapper.read(state => {node.textContent = state})
+    document.body.appendChild(node)
+    setTimeout(() => {stateWrapper.write('bye!')}, 1000)
 })

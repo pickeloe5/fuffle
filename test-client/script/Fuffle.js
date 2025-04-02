@@ -18,23 +18,13 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 
 /***/ }),
 
-/***/ "./src-client/bindings.ts":
-/*!********************************!*\
-  !*** ./src-client/bindings.ts ***!
-  \********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   text: () => (/* binding */ text)\n/* harmony export */ });\nfunction text(stateCursor) {\n    const node = document.createTextNode(readTextValue(stateCursor));\n    stateCursor.bind(() => {\n        node.nodeValue = readTextValue(stateCursor);\n    });\n    return node;\n}\nfunction readTextValue(stateCursor) {\n    const value = stateCursor.read();\n    if (typeof value === 'string')\n        return value;\n    if (typeof value === 'number')\n        return String(value);\n    return '';\n}\n\n\n//# sourceURL=webpack:///./src-client/bindings.ts?");
-
-/***/ }),
-
 /***/ "./src-client/index.ts":
 /*!*****************************!*\
   !*** ./src-client/index.ts ***!
   \*****************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony import */ var _$__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./$ */ \"./src-client/$.ts\");\n/* harmony import */ var _state__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./state */ \"./src-client/state.ts\");\n/* harmony import */ var _bindings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./bindings */ \"./src-client/bindings.ts\");\n\n\n\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({ state: _state__WEBPACK_IMPORTED_MODULE_1__[\"default\"], text: _bindings__WEBPACK_IMPORTED_MODULE_2__.text, $: _$__WEBPACK_IMPORTED_MODULE_0__[\"default\"] });\n\n\n//# sourceURL=webpack:///./src-client/index.ts?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony import */ var _$__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./$ */ \"./src-client/$.ts\");\n/* harmony import */ var _state__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./state */ \"./src-client/state.ts\");\n\n\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({ $: _$__WEBPACK_IMPORTED_MODULE_0__[\"default\"], state: _state__WEBPACK_IMPORTED_MODULE_1__[\"default\"] });\n\n\n//# sourceURL=webpack:///./src-client/index.ts?");
 
 /***/ }),
 
@@ -44,7 +34,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
   \*****************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   StateBinding: () => (/* binding */ StateBinding),\n/* harmony export */   StateCursor: () => (/* binding */ StateCursor),\n/* harmony export */   StateWrapper: () => (/* binding */ StateWrapper),\n/* harmony export */   \"default\": () => (/* binding */ state)\n/* harmony export */ });\nclass StateWrapper {\n    state;\n    bindings = [];\n    cursor;\n    constructor(state) {\n        this.state = state;\n        this.cursor = new StateCursor(this);\n    }\n}\nclass StateCursor {\n    stateWrapper;\n    path;\n    proxy = new Proxy(() => this, {\n        get: (target, name, receiver) => {\n            if (typeof name !== 'string')\n                return Reflect.get(target, name, receiver);\n            return this.getChild(name);\n        }\n    });\n    constructor(stateWrapper, path = []) {\n        this.stateWrapper = stateWrapper;\n        this.path = path;\n    }\n    read() {\n        let value = this.stateWrapper.state;\n        for (const key of this.path)\n            value = value[key];\n        return value;\n    }\n    bind(onUpdated) {\n        this.stateWrapper.bindings.push(new StateBinding([this.path], onUpdated));\n    }\n    getChild(key) {\n        return new StateCursor(this.stateWrapper, [...this.path, key]);\n    }\n}\nclass StateBinding {\n    dependencies;\n    onUpdated;\n    constructor(dependencies, onUpdated) {\n        this.dependencies = dependencies;\n        this.onUpdated = onUpdated;\n    }\n}\nfunction state(state) {\n    return new StateWrapper(state).cursor.proxy;\n}\n\n\n//# sourceURL=webpack:///./src-client/state.ts?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   StateWrapper: () => (/* binding */ StateWrapper),\n/* harmony export */   \"default\": () => (/* binding */ state)\n/* harmony export */ });\nclass StateWrapper {\n    state;\n    listeners = [];\n    constructor(state) {\n        this.state = state;\n    }\n    read(callback) {\n        this.listeners.push(callback);\n        callback(this.state);\n    }\n    write(state) {\n        this.state = state;\n        for (const listener of this.listeners)\n            listener(state);\n    }\n}\nfunction state(value) {\n    return new StateWrapper(value);\n}\n\n\n//# sourceURL=webpack:///./src-client/state.ts?");
 
 /***/ })
 
