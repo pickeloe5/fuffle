@@ -17,7 +17,7 @@ export class StateWrapper<T> {
 
 export class ObjectStateWrapper<T extends object> {
     state: T
-    listeners: ObjectStateListener<T>[]
+    listeners: ObjectStateListener<T>[] = []
     constructor(state: T) {
         this.state = state
     }
@@ -26,18 +26,33 @@ export class ObjectStateWrapper<T extends object> {
         this.listeners.push(listener)
         listener.fire()
     }
-    write(state: T) {
+    write(objectOrFunction: T | ((state: T) => void)) {
+        const keys: ObjectStateKey[] =
+            typeof objectOrFunction === 'function'
+                ? this.#writeFunction(objectOrFunction)
+                : this.#writeObject(objectOrFunction)
+        for (const listener of this.listeners)
+            if (listener.check(keys))
+                listener.fire()
+    }
+    #writeObject(state: T): ObjectStateKey[] {
         const keys: ObjectStateKey[] = []
         for (const key in this.state)
             if (state[key] !== this.state[key])
                 keys.push(key)
         for (const key in state)
-            if (key !in this.state)
+            if (!(key in this.state))
                 keys.push(key)
-        this.state = state
-        for (const listener of this.listeners)
-            if (listener.check(keys))
-                listener.fire()
+        this.state = {...state}
+        return keys
+    }
+    #writeFunction(callback: (state: T) => void): ObjectStateKey[] {
+        const state = {...this.state}
+        const observer = new ObjectStateObserver(state)
+        callback(observer.proxy)
+        observer.stop()
+        this.state = {...state}
+        return [...observer.sets]
     }
 }
 
@@ -53,13 +68,13 @@ export class ObjectStateListener<T extends object> {
         this.#callback = callback
     }
     fire() {
-        const observer = new ObjectStateObserver<T>(this.#stateWrapper.state)
+        const observer = new ObjectStateObserver({...this.#stateWrapper.state})
         this.#callback(observer.proxy)
         observer.stop()
-        this.#dependencies = observer.getDependencies()
+        this.#dependencies = [...observer.gets]
     }
     check(keys: ObjectStateKey[]) {
-        return !keys.some(key => this.#dependencies.includes(key))
+        return keys.some(key => this.#dependencies.includes(key))
     }
 }
 
@@ -69,18 +84,20 @@ type ObjectStateKey = string | number
 class ObjectStateObserver<T extends object> {
     proxy: T
     stop: () => void
-    #gets: ObjectStateKey[] = []
+    gets: ObjectStateKey[] = []
+    sets: ObjectStateKey[] = []
     constructor(state: T) {
         const {proxy, revoke} = this.#makeProxy(state)
         this.proxy = proxy
         this.stop = revoke
     }
-    getDependencies() {
-        return [...this.#gets]
-    }
     #onGet(key: ObjectStateKey) {
-        if (!this.#gets.includes(key))
-            this.#gets.push(key)
+        if (!this.gets.includes(key))
+            this.gets.push(key)
+    }
+    #onSet(key: ObjectStateKey) {
+        if (!this.sets.includes(key))
+            this.sets.push(key)
     }
     #makeProxy(state: T) {
         return Proxy.revocable(state, {
@@ -88,6 +105,11 @@ class ObjectStateObserver<T extends object> {
                 if (typeof key === 'string')
                     this.#onGet(key)
                 return Reflect.get(target, key, receiver)
+            },
+            set: (target, key, value, receiver) => {
+                if (typeof key === 'string' && value !== state[key])
+                    this.#onSet(key)
+                return Reflect.set(target, key, value, receiver)
             }
         })
     }

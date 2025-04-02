@@ -1,4 +1,4 @@
 import $ from './$'
-import state from './state'
+import state, {objectState} from './state'
 
-export default {$, state}
+export default {$, state, objectState}
