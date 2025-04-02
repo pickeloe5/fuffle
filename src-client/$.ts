@@ -43,6 +43,16 @@ export default class DomUtil {
     constructor(node: Node) {
         this.node = node
     }
+    attribute(name: string, value: string) {
+        const {node} = this
+        if (!(node instanceof Element))
+            throw new Error('Cannot set attribute of non element')
+        node.setAttribute(name, value)
+        return this
+    }
+    attr(name: string, value: string) {
+        return this.attribute(name, value)
+    }
     text(text: string): this {
         this.node.textContent = text
         return this
