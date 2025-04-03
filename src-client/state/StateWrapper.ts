@@ -6,7 +6,8 @@ export default class StateWrapper<T> {
     text(callback: (state: T) => string = defaultTextCallback): Text {
         const node = document.createTextNode('')
         this.read((state: T) => {
-            node.nodeValue = callback(state)
+            const value = callback(state)
+            node.nodeValue = value
         })
         return node
     }
