@@ -1,10 +1,6 @@
-import SimpleStateWrapper from './SimpleStateWrapper'
-import ObjectStateWrapper from './ObjectStateWrapper/index'
+import type {TRootStateWrapper} from './RootStateWrapper'
+const RootStateWrapper: typeof TRootStateWrapper = require('./RootStateWrapper')
 
-export default function state<T>(value: T): SimpleStateWrapper<T> {
-    return new SimpleStateWrapper(value)
-}
-
-export function objectState<T extends object>(value: T): ObjectStateWrapper<T> {
-    return new ObjectStateWrapper(value)
+module.exports = function state<StateGeneric>(value: StateGeneric) {
+    return new RootStateWrapper<StateGeneric>(value)
 }

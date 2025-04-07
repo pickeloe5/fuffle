@@ -1,17 +1,22 @@
-import Fuffle from '/script/Fuffle.js'
 const {$} = Fuffle
 
-addEventListener('load', () => {
-    const stateWrapper = Fuffle.state('hi!')
-    const objectStateWrapper = Fuffle.objectState({a: 'a1', b: 'b1', c: {d: 'd1'}})
-    new $(document.body).add(
-        stateWrapper.text(),
-        objectStateWrapper.text(state => state.a),
-        objectStateWrapper.text(state => state.c.d),
-        $.element('button').text('Click here').on('click', () => {
-            stateWrapper.write('bye!')
-            objectStateWrapper.write({a: 'a2', b: 'b1', c: {d: 'd1'}})
-            objectStateWrapper.update(state => {state.c.d = 'd2'})
+const stateWrapper = Fuffle.state([{name: 'a1'}, {name: 'b1'}])
+document.body.append(
+    stateWrapper.map((itemWrapper) => {
+        const node = document.createTextNode('')
+        itemWrapper.read('name', name => {
+            node.nodeValue = name
         })
-    )
-})
+        return [node, document.createElement('br')]
+    }),
+    $.element('button').text('Click here').on('click', () => {
+        const index = Math.floor(Math.random() * stateWrapper.length)
+        const value = String(Math.trunc(Math.random() * 10000))
+        stateWrapper.getChild(index).update('name', value)
+        // stateWrapper.update((state: State) => {
+        //     state[index].name = value
+        // })
+        stateWrapper.push({name: Math.trunc(Math.random() * 10000)})
+    }).node
+)
+console.log(stateWrapper.bindings.map(binding => binding.dependencies))

@@ -1,4 +1,4 @@
-export default class DomUtil {
+class DomUtil {
     static element(tagName: string) {
         return new DomUtil(document.createElement(tagName))
     }
@@ -71,3 +71,7 @@ export default class DomUtil {
         return this
     }
 }
+
+module.exports = DomUtil
+
+export type {DomUtil as TDomUtil}

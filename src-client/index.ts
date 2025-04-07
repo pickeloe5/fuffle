@@ -1,4 +1,4 @@
-import $ from './$'
-import state, {objectState} from './state/index'
+const $ = require('./$')
+const state = require('./state')
 
-export default {$, state, objectState}
+module.exports = {$, state}

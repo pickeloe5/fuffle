@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "target": "ESNext",
-        "module": "ESNext"
-    },
-    "files": ["src-client/index.ts"],
+        "module": "CommonJS",
+        "esModuleInterop": true
+    }
 }

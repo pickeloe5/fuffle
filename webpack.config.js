@@ -5,7 +5,8 @@ module.exports = {
     output: {
         filename: 'Fuffle.js',
         library: {
-            type: 'module'
+            name: 'Fuffle',
+            type: 'var'
         }
     },
     module: {rules: [{
@@ -13,8 +14,5 @@ module.exports = {
         use: 'ts-loader',
         exclude: /node_modules/
     }]},
-    resolve: {extensions: ['.ts']},
-    experiments: {
-        outputModule: true
-    }
+    resolve: {extensions: ['.ts']}
 }
