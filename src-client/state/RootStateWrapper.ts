@@ -33,6 +33,9 @@ class RootStateWrapper<StateGeneric> {
     push(item: StateGeneric[keyof StateGeneric]) {
         this.#asArray().push(item)
     }
+    pop() {
+        this.#asArray().pop()
+    }
     getChild<ChildWrapperGeneric>(key: StateKey): ChildWrapperGeneric {
         return this.#asObject().getChild(key)
     }

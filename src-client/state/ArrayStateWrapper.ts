@@ -15,7 +15,12 @@ class ArrayStateWrapper<ItemGeneric>
         return new ArrayElement(this, renderItem)
     }
     push(item: ItemGeneric) {
-
+        this.state.push(item)
+        this.parent.onSet([[...this.path, 'length']])
+    }
+    pop() {
+        this.state.pop()
+        this.parent.onSet([[...this.path, 'length']])
     }
 }
 

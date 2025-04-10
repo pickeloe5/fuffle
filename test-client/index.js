@@ -17,6 +17,9 @@ document.body.append(
         //     state[index].name = value
         // })
         stateWrapper.push({name: Math.trunc(Math.random() * 10000)})
+    }).node,
+    $.element('button').text('Pop').on('click', () => {
+        stateWrapper.pop()
     }).node
 )
 console.log(stateWrapper.bindings.map(binding => binding.dependencies))
