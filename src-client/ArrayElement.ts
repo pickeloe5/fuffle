@@ -4,14 +4,15 @@ const Binding: typeof TBinding = require('./state/Binding')
 
 class FuffleArrayElement<
     ItemGeneric,
-    ItemWrapperGeneric = ItemGeneric
+    ItemWrapperGeneric,
+    RootGeneric
 > extends HTMLElement {
-    #state: TArrayStateWrapper<ItemGeneric>
+    #state: TArrayStateWrapper<ItemGeneric, RootGeneric>
     #renderItem: (itemWrapper: ItemWrapperGeneric) => Node[]
     #length = 0
     #children: Node[][] = []
     constructor(
-        state: TArrayStateWrapper<ItemGeneric>,
+        state: TArrayStateWrapper<ItemGeneric, RootGeneric>,
         renderItem: (itemWrapper: ItemWrapperGeneric) => Node[]
     ) {
         super()
@@ -40,7 +41,7 @@ class FuffleArrayElement<
                 }
             }
         }
-        this.#state.parent.bindings.push(new Binding(
+        this.#state.root.bindings.push(new Binding(
             listener,
             [[...this.#state.path, 'length']]
         ))

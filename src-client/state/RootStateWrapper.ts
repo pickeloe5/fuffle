@@ -6,20 +6,21 @@ const {compareStatePaths} = require('./util')
 import type {TArrayElement} from '../ArrayElement'
 import type {TObjectStateWrapper} from './ObjectStateWrapper'
 const ObjectStateWrapper: typeof TObjectStateWrapper = require('./ObjectStateWrapper')
+import {TBaseStateWrapper} from './BaseStateWrapper'
+const BaseStateWrapper: typeof TBaseStateWrapper = require('./BaseStateWrapper')
 
-class RootStateWrapper<StateGeneric> {
-    state: StateGeneric
+class RootStateWrapper<StateGeneric> extends BaseStateWrapper<StateGeneric, StateGeneric> {
     bindings: TBinding[] = []
     constructor(state: StateGeneric) {
-        this.state = state
+        super(state)
     }
     get length() {
         return this.#asArray().length
     }
     onSet(paths: StatePath[]) {
         for (const binding of this.bindings) {
-            if (paths.some(path =>
-                binding.dependencies.some(dependency =>
+            if (binding.dependencies.some(dependency =>
+                paths.some(path =>
                     compareStatePaths(path, dependency)
                 )
             )) binding.listener()
@@ -27,7 +28,11 @@ class RootStateWrapper<StateGeneric> {
     }
     map<ItemWrapperGeneric>(
         renderItem: (itemWrapper: ItemWrapperGeneric) => Node[]
-    ): TArrayElement<StateGeneric[keyof StateGeneric], ItemWrapperGeneric> {
+    ): TArrayElement<
+        StateGeneric[keyof StateGeneric],
+        ItemWrapperGeneric,
+        StateGeneric
+    > {
         return this.#asArray().map(renderItem)
     }
     push(item: StateGeneric[keyof StateGeneric]) {
@@ -39,32 +44,30 @@ class RootStateWrapper<StateGeneric> {
     getChild<ChildWrapperGeneric>(key: StateKey): ChildWrapperGeneric {
         return this.#asObject().getChild(key)
     }
-    #asObject(): TObjectStateWrapper<StateGeneric & object> {
+    #asObject(): TObjectStateWrapper<StateGeneric & object, StateGeneric> {
         const {state} = this
         if (
             typeof state !== 'object' ||
             state === null ||
             state === undefined
         ) throw new Error('Expected state to be an object')
-        return new ObjectStateWrapper<StateGeneric & object>(
-            this as RootStateWrapper<unknown>,
-            [],
-            state
+        return new ObjectStateWrapper<StateGeneric & object, StateGeneric>(
+            state,
+            this,
+            []
         )
     }
-    #asArray(): TArrayStateWrapper<StateGeneric[keyof StateGeneric]> {
+    #asArray(): TArrayStateWrapper<StateGeneric[keyof StateGeneric], StateGeneric> {
         const {state} = this
         if (!Array.isArray(state))
             throw new Error('Expected state to be an array')
         return new ArrayStateWrapper(
-            this as RootStateWrapper<unknown>,
-            [],
-            state
+            state,
+            this,
+            []
         )
     }
 }
-
-new RootStateWrapper<string[]>([]).push('')
 
 module.exports = RootStateWrapper
 export type {RootStateWrapper as TRootStateWrapper}

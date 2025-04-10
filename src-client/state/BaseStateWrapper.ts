@@ -5,18 +5,18 @@ import type {TObjectStateWrapper} from './ObjectStateWrapper'
 let ArrayStateWrapper: typeof TArrayStateWrapper
 let ObjectStateWrapper: typeof TObjectStateWrapper
 
-class BaseStateWrapper<StateGeneric> {
-    parent: TRootStateWrapper<unknown>
-    path: StatePath
+class BaseStateWrapper<StateGeneric, RootGeneric> {
     state: StateGeneric
+    root: TRootStateWrapper<RootGeneric> | null
+    path: StatePath
     constructor(
-        parent: TRootStateWrapper<unknown>,
-        path: StatePath,
-        state: StateGeneric
+        state: StateGeneric,
+        root: TRootStateWrapper<RootGeneric> | null = null,
+        path: StatePath = []
     ) {
-        this.parent = parent
-        this.path = path
         this.state = state
+        this.root = root
+        this.path = path
     }
     getChild<ChildWrapperGeneric>(
         key: StateKey
@@ -24,21 +24,21 @@ class BaseStateWrapper<StateGeneric> {
         const child = this.state[key]
         if (Array.isArray(child))
             return new ArrayStateWrapper(
-                this.parent,
-                [...this.path, key],
-                child
+                child,
+                this.root,
+                [...this.path, key]
             ) as ChildWrapperGeneric
         if (typeof child === 'object' && child !== null && child !== undefined)
             return new ObjectStateWrapper(
-                this.parent,
-                [...this.path, key],
-                child
+                child,
+                this.root,
+                [...this.path, key]
             ) as ChildWrapperGeneric
         return child as ChildWrapperGeneric
     }
     update(key: StateKey, value: unknown) {
         this.state[key] = value
-        this.parent.onSet([[...this.path, key]])
+        this.root.onSet([[...this.path, key]])
     }
 }
 
