@@ -1,5 +1,5 @@
 import type {TBinding} from './Binding'
-import type {StatePath, StateKey} from './types'
+import type {StatePath, StateKey, KindaNode} from './types'
 import type {TArrayStateWrapper} from './ArrayStateWrapper'
 const ArrayStateWrapper: typeof TArrayStateWrapper = require('./ArrayStateWrapper')
 const {compareStatePaths} = require('./util')
@@ -27,7 +27,7 @@ class RootStateWrapper<StateGeneric> extends BaseStateWrapper<StateGeneric, Stat
         }
     }
     map<ItemWrapperGeneric>(
-        renderItem: (itemWrapper: ItemWrapperGeneric) => Node[]
+        renderItem: (itemWrapper: ItemWrapperGeneric) => KindaNode[]
     ): TArrayElement<
         StateGeneric[keyof StateGeneric],
         ItemWrapperGeneric,

@@ -2,6 +2,7 @@ import type {TBaseStateWrapper} from './BaseStateWrapper'
 const BaseStateWrapper: typeof TBaseStateWrapper = require('./BaseStateWrapper')
 import type {TArrayElement} from '../ArrayElement'
 const ArrayElement: typeof TArrayElement = require('../ArrayElement')
+import {KindaNode} from './types'
 
 class ArrayStateWrapper<ItemGeneric, RootGeneric>
     extends BaseStateWrapper<ItemGeneric[], RootGeneric>
@@ -10,7 +11,7 @@ class ArrayStateWrapper<ItemGeneric, RootGeneric>
         return this.state.length
     }
     map<ItemWrapperGeneric>
-        (renderItem: (itemWrapper: ItemWrapperGeneric) => Node[]
+        (renderItem: (itemWrapper: ItemWrapperGeneric) => KindaNode[]
     ): TArrayElement<ItemGeneric, ItemWrapperGeneric, RootGeneric> {
         return new ArrayElement(this, renderItem)
     }

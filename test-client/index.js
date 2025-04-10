@@ -1,25 +1,33 @@
 const {$} = Fuffle
 
-const stateWrapper = Fuffle.state([{name: 'a1'}, {name: 'b1'}])
-document.body.append(
-    stateWrapper.map((itemWrapper) => {
-        const node = document.createTextNode('')
-        itemWrapper.read('name', name => {
-            node.nodeValue = name
-        })
-        return [node, document.createElement('br')]
-    }),
-    $.element('button').text('Click here').on('click', () => {
-        const index = Math.floor(Math.random() * stateWrapper.length)
-        const value = String(Math.trunc(Math.random() * 10000))
-        stateWrapper.getChild(index).update('name', value)
-        // stateWrapper.update((state: State) => {
-        //     state[index].name = value
-        // })
-        stateWrapper.push({name: Math.trunc(Math.random() * 10000)})
-    }).node,
-    $.element('button').text('Pop').on('click', () => {
-        stateWrapper.pop()
-    }).node
-)
-console.log(stateWrapper.bindings.map(binding => binding.dependencies))
+addEventListener('load', () => {
+    const stateWrapper = Fuffle.state([{name: 'a1'}, {name: 'b1'}])
+    const state = stateWrapper.writeProxy
+    new $(document.body).add(
+        button('Update', () => {
+            const index = Math.floor(Math.random() * stateWrapper.length)
+            const value = String(Math.trunc(Math.random() * 10000))
+            stateWrapper.getChild(index).update('name', value)
+            // stateWrapper.update((state: State) => {
+            //     state[index].name = value
+            // })
+            state[index].name = value
+        }),
+        button('Push', () => {
+            const value = Math.trunc(Math.random() * 10000)
+            stateWrapper.push({name: value})
+        }),
+        button('Pop', () => {
+            stateWrapper.pop()
+        }),
+        $.element('br'),
+        stateWrapper.map(item => [
+            item.text('name'),
+            $.element('br')
+        ])
+    )
+})
+
+function button(text, onClick) {
+    return $.element('button').text(text).on('click', onClick)
+}

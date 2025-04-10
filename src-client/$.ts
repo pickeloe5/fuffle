@@ -36,7 +36,7 @@ class DomUtil {
                 return [document.createElement(String(child))]
             }
         }
-        return []
+        return [child as Node]
 
     }
     node: Node
