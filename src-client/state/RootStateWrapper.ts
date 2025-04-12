@@ -8,6 +8,7 @@ import type {TObjectStateWrapper} from './ObjectStateWrapper'
 const ObjectStateWrapper: typeof TObjectStateWrapper = require('./ObjectStateWrapper')
 import {TBaseStateWrapper} from './BaseStateWrapper'
 const BaseStateWrapper: typeof TBaseStateWrapper = require('./BaseStateWrapper')
+import type {TStateCursor} from './Cursor'
 
 class RootStateWrapper<StateGeneric> extends BaseStateWrapper<StateGeneric, StateGeneric> {
     bindings: TBinding[] = []
@@ -37,6 +38,9 @@ class RootStateWrapper<StateGeneric> extends BaseStateWrapper<StateGeneric, Stat
     }
     push(item: StateGeneric[keyof StateGeneric]) {
         this.#asArray().push(item)
+    }
+    text2(getText: (state: StateGeneric, cursor: TStateCursor<StateGeneric>) => string) {
+        return this.#asObject().text2(getText)
     }
     pop() {
         this.#asArray().pop()

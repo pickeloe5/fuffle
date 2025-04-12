@@ -1,7 +1,16 @@
 const {$} = Fuffle
 
 addEventListener('load', () => {
-    const stateWrapper = Fuffle.state([{name: 'a1'}, {name: 'b1'}])
+    const stateWrapper = Fuffle.state({a: {b: 'b1'}})
+    new $(document.body).add(
+        stateWrapper.text2((state, cursor) =>
+            cursor.resolve(state.a.b)
+        ),
+        $button('Click here', () => {
+            stateWrapper.getChild('a').update('b', 'b2')
+        })
+    )
+    /*const stateWrapper = Fuffle.state([{name: 'a1'}, {name: 'b1'}])
     const state = stateWrapper.writeProxy
     new $(document.body).add(
         button('Update', () => {
@@ -25,9 +34,9 @@ addEventListener('load', () => {
             item.text('name'),
             $.element('br')
         ])
-    )
+    )*/
 })
 
-function button(text, onClick) {
+function $button(text, onClick) {
     return $.element('button').text(text).on('click', onClick)
 }
