@@ -1,6 +1,11 @@
-class DomUtil {
-    static element(tagName: string) {
+// Would be kind of cool to make framework of just:
+// NodeWrapper and StateWrapper
+class DomUtil<T extends Node = Node> {
+    static element(tagName: string): DomUtil {
         return new DomUtil(document.createElement(tagName))
+    }
+    static div(...classNames: string[]): DomUtil {
+        return new DomUtil(document.createElement('div')).class(...classNames)
     }
     static text(text: string) {
         return new DomUtil(document.createTextNode(text))
@@ -33,15 +38,22 @@ class DomUtil {
             try {
                 return [document.createTextNode(JSON.stringify(child))]
             } catch {
-                return [document.createElement(String(child))]
+                return [document.createTextNode(String(child))]
             }
         }
         return [child as Node]
 
     }
-    node: Node
-    constructor(node: Node) {
+    node: T
+    constructor(node: T) {
         this.node = node
+    }
+    class(...names: string[]) {
+        const {node} = this
+        if (node instanceof Element)
+            for (const name of names)
+                node.classList.toggle(name, true)
+        return this
     }
     attribute(name: string, value: string) {
         const {node} = this
@@ -70,8 +82,13 @@ class DomUtil {
             this.node.appendChild(node)
         return this
     }
+    removeAll() {
+        const nodes = [...this.node.childNodes]
+        for (const node of nodes)
+            node.remove()
+        return this
+    }
 }
 
 module.exports = DomUtil
-
 export type {DomUtil as TDomUtil}

@@ -8,6 +8,7 @@
  */
 var Fuffle;
 /******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
 /***/ "./src-client/$.ts":
@@ -16,8 +17,7 @@ var Fuffle;
   \*************************/
 /***/ ((module, exports) => {
 
-"use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nclass DomUtil {\n    static element(tagName) {\n        return new DomUtil(document.createElement(tagName));\n    }\n    static text(text) {\n        return new DomUtil(document.createTextNode(text));\n    }\n    static resolveArray(child) {\n        const nodes = [];\n        for (const grandchild of child)\n            nodes.push(...DomUtil.resolve(grandchild));\n        return nodes;\n    }\n    static resolve(child) {\n        if (child instanceof Node)\n            return [child];\n        if (child instanceof DomUtil)\n            return [child.node];\n        if (typeof child === 'string')\n            return [document.createTextNode(child)];\n        if (typeof child === 'number')\n            return [document.createTextNode(String(child))];\n        if (typeof child === 'boolean') {\n            if (!child)\n                return [];\n            return [document.createTextNode('string')];\n        }\n        if (Array.isArray(child))\n            return DomUtil.resolveArray(child);\n        if (child === undefined || child === null)\n            return [];\n        if (typeof child === 'object') {\n            try {\n                return [document.createTextNode(JSON.stringify(child))];\n            }\n            catch {\n                return [document.createElement(String(child))];\n            }\n        }\n        return [child];\n    }\n    node;\n    constructor(node) {\n        this.node = node;\n    }\n    attribute(name, value) {\n        const { node } = this;\n        if (!(node instanceof Element))\n            throw new Error('Cannot set attribute of non element');\n        node.setAttribute(name, value);\n        return this;\n    }\n    attr(name, value) {\n        return this.attribute(name, value);\n    }\n    text(text) {\n        this.node.textContent = text;\n        return this;\n    }\n    on(eventName, onFired, options) {\n        this.node.addEventListener(eventName, onFired, options);\n        return this;\n    }\n    add(...children) {\n        const nodes = DomUtil.resolveArray(children);\n        for (const node of nodes)\n            this.node.appendChild(node);\n        return this;\n    }\n}\nmodule.exports = DomUtil;\n\n\n//# sourceURL=webpack://Fuffle/./src-client/$.ts?");
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nclass DomUtil {\n    static element(tagName) {\n        return new DomUtil(document.createElement(tagName));\n    }\n    static div(...classNames) {\n        return new DomUtil(document.createElement('div')).class(...classNames);\n    }\n    static text(text) {\n        return new DomUtil(document.createTextNode(text));\n    }\n    static resolveArray(child) {\n        const nodes = [];\n        for (const grandchild of child)\n            nodes.push(...DomUtil.resolve(grandchild));\n        return nodes;\n    }\n    static resolve(child) {\n        if (child instanceof Node)\n            return [child];\n        if (child instanceof DomUtil)\n            return [child.node];\n        if (typeof child === 'string')\n            return [document.createTextNode(child)];\n        if (typeof child === 'number')\n            return [document.createTextNode(String(child))];\n        if (typeof child === 'boolean') {\n            if (!child)\n                return [];\n            return [document.createTextNode('string')];\n        }\n        if (Array.isArray(child))\n            return DomUtil.resolveArray(child);\n        if (child === undefined || child === null)\n            return [];\n        if (typeof child === 'object') {\n            try {\n                return [document.createTextNode(JSON.stringify(child))];\n            }\n            catch {\n                return [document.createTextNode(String(child))];\n            }\n        }\n        return [child];\n    }\n    node;\n    constructor(node) {\n        this.node = node;\n    }\n    class(...names) {\n        const { node } = this;\n        if (node instanceof Element)\n            for (const name of names)\n                node.classList.toggle(name, true);\n        return this;\n    }\n    attribute(name, value) {\n        const { node } = this;\n        if (!(node instanceof Element))\n            throw new Error('Cannot set attribute of non element');\n        node.setAttribute(name, value);\n        return this;\n    }\n    attr(name, value) {\n        return this.attribute(name, value);\n    }\n    text(text) {\n        this.node.textContent = text;\n        return this;\n    }\n    on(eventName, onFired, options) {\n        this.node.addEventListener(eventName, onFired, options);\n        return this;\n    }\n    add(...children) {\n        const nodes = DomUtil.resolveArray(children);\n        for (const node of nodes)\n            this.node.appendChild(node);\n        return this;\n    }\n    removeAll() {\n        const nodes = [...this.node.childNodes];\n        for (const node of nodes)\n            node.remove();\n        return this;\n    }\n}\nmodule.exports = DomUtil;\n\n\n//# sourceURL=webpack://Fuffle/./src-client/$.ts?");
 
 /***/ }),
 
@@ -27,8 +27,37 @@ eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nclas
   \************************************/
 /***/ ((module, exports, __webpack_require__) => {
 
-"use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nconst Binding = __webpack_require__(/*! ./state/Binding */ \"./src-client/state/Binding.ts\");\nconst DomUtil = __webpack_require__(/*! ./$ */ \"./src-client/$.ts\");\nclass FuffleArrayElement extends HTMLElement {\n    #state;\n    #renderItem;\n    #length = 0;\n    #children = [];\n    constructor(state, renderItem) {\n        super();\n        this.#state = state;\n        this.#renderItem = renderItem;\n    }\n    connectedCallback() {\n        const listener = () => {\n            const state = this.#state;\n            if (this.#length < state.length) {\n                const nodes = [];\n                for (; this.#length < state.length; this.#length++) {\n                    const childNodes = DomUtil.resolveArray(this.#renderItem(this.#state.getChild(this.#length)));\n                    nodes.push(...childNodes);\n                    this.#children.push(childNodes);\n                }\n                this.append(...nodes);\n            }\n            if (this.#length > state.length) {\n                for (; this.#length > state.length; this.#length--) {\n                    const nodes = this.#children.pop();\n                    for (const node of nodes)\n                        node.parentNode.removeChild(node);\n                }\n            }\n        };\n        this.#state.root.bindings.push(new Binding(listener, [[...this.#state.path, 'length']]));\n        listener();\n    }\n}\ncustomElements.define('fuffle-array', FuffleArrayElement);\nmodule.exports = FuffleArrayElement;\n\n\n//# sourceURL=webpack://Fuffle/./src-client/ArrayElement.ts?");
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nlet $;\nclass FuffleArrayElement extends HTMLElement {\n    #stateWrapper;\n    #render;\n    #$ = new $(this);\n    #nodes = [];\n    constructor(stateWrapper, render) {\n        super();\n        this.#stateWrapper = stateWrapper;\n        this.#render = render;\n    }\n    connectedCallback() {\n        this.#stateWrapper.getChild('length').bind(length => {\n            while (this.#nodes.length < length) {\n                const nodes = $.resolve(this.#render(this.#stateWrapper.getChild(this.#nodes.length).proxy));\n                this.#nodes.push(nodes);\n                this.#$.add(nodes);\n            }\n            while (this.#nodes.length > length) {\n                const nodes = this.#nodes.pop();\n                for (const node of nodes)\n                    node.parentNode.removeChild(node);\n            }\n        });\n    }\n}\ncustomElements.define('fuffle-array', FuffleArrayElement);\nmodule.exports = FuffleArrayElement;\n$ = __webpack_require__(/*! ./$ */ \"./src-client/$.ts\");\n\n\n//# sourceURL=webpack://Fuffle/./src-client/ArrayElement.ts?");
+
+/***/ }),
+
+/***/ "./src-client/IfElement.ts":
+/*!*********************************!*\
+  !*** ./src-client/IfElement.ts ***!
+  \*********************************/
+/***/ ((module, exports, __webpack_require__) => {
+
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nlet $;\nclass FuffleIfElement extends HTMLElement {\n    static else(instance, render) {\n        instance.#renderElse = render;\n        return instance;\n    }\n    #stateWrapper;\n    #render;\n    #renderElse = null;\n    #$ = new $(this);\n    #showing = false;\n    constructor(stateWrapper, render) {\n        super();\n        this.#stateWrapper = stateWrapper;\n        this.#render = render;\n    }\n    connectedCallback() {\n        this.#stateWrapper.bind(state => {\n            if (state) {\n                if (!this.#showing) {\n                    if (this.#renderElse)\n                        this.#$.removeAll();\n                    this.#$.add(this.#render());\n                    this.#showing = true;\n                }\n            }\n            else if (this.#showing) {\n                this.#$.removeAll();\n                if (this.#renderElse)\n                    this.#$.add(this.#renderElse());\n                this.#showing = false;\n            }\n        });\n    }\n}\ncustomElements.define('fuffle-if', FuffleIfElement);\nmodule.exports = FuffleIfElement;\n$ = __webpack_require__(/*! ./$ */ \"./src-client/$.ts\");\n\n\n//# sourceURL=webpack://Fuffle/./src-client/IfElement.ts?");
+
+/***/ }),
+
+/***/ "./src-client/IfUtil.ts":
+/*!******************************!*\
+  !*** ./src-client/IfUtil.ts ***!
+  \******************************/
+/***/ ((module, exports, __webpack_require__) => {
+
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nlet FuffleIfElement;\nlet $;\n$ = __webpack_require__(/*! ./$ */ \"./src-client/$.ts\");\nclass IfUtil extends $ {\n    else(render) {\n        FuffleIfElement.else(this.node, render);\n        return this;\n    }\n}\nmodule.exports = IfUtil;\nFuffleIfElement = __webpack_require__(/*! ./IfElement */ \"./src-client/IfElement.ts\");\n\n\n//# sourceURL=webpack://Fuffle/./src-client/IfUtil.ts?");
+
+/***/ }),
+
+/***/ "./src-client/StateWrapper.ts":
+/*!************************************!*\
+  !*** ./src-client/StateWrapper.ts ***!
+  \************************************/
+/***/ ((module, exports, __webpack_require__) => {
+
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nlet FuffleArrayElement;\nclass StateWrapper {\n    state;\n    proxy;\n    children = {};\n    listeners = [];\n    parent;\n    key;\n    constructor(state, parent, key) {\n        this.state = state;\n        this.parent = parent;\n        this.key = key;\n        this.proxy = new Proxy(() => this, {\n            get: (target, property, receiver) => {\n                if (typeof property === 'symbol')\n                    return Reflect.get(target, property, receiver);\n                return this.proxyGet(property);\n            },\n            set: (target, property, value, receiver) => {\n                if (typeof property === 'symbol')\n                    return Reflect.set(target, property, value, receiver);\n                this.state[property] = value;\n                this.getChild(property).set(value);\n                return true;\n            }\n        });\n    }\n    proxyGetImpl(key) {\n        return this.getChild(key).proxy;\n    }\n    proxyGet(key) {\n        return this.proxyGetImpl(key);\n    }\n    bind(callback) {\n        this.listeners.push(callback);\n        callback(this.state);\n    }\n    set(state) {\n        this.state = state;\n        this.#onSet();\n    }\n    #onSet() {\n        for (const listener of this.listeners)\n            listener(this.state);\n    }\n    getChild(key) {\n        if (key in this.children)\n            return this.children[key];\n        const value = this.state[key];\n        if (Array.isArray(value))\n            return this.children[key] = new ArrayStateWrapper(value, this, key);\n        return (this.children[key] = new StateWrapper(value, this, key));\n    }\n}\nclass ArrayStateWrapper extends StateWrapper {\n    proxyGet(key) {\n        if (key === 'push')\n            return ((it) => { this.push(it); });\n        if (key === 'pop')\n            return (() => this.pop());\n        if (key === 'map')\n            return ((render) => {\n                return new FuffleArrayElement(this, render);\n            });\n    }\n    push(it) {\n        this.state.push(it);\n        this.getChild('length').set(this.state.length);\n    }\n    pop() {\n        const it = this.state.pop();\n        this.getChild('length').set(this.state.length);\n        return it;\n    }\n}\nmodule.exports = StateWrapper;\nFuffleArrayElement = __webpack_require__(/*! ./ArrayElement */ \"./src-client/ArrayElement.ts\");\n\n\n//# sourceURL=webpack://Fuffle/./src-client/StateWrapper.ts?");
 
 /***/ }),
 
@@ -36,97 +65,9 @@ eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\ncons
 /*!*****************************!*\
   !*** ./src-client/index.ts ***!
   \*****************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-eval("const $ = __webpack_require__(/*! ./$ */ \"./src-client/$.ts\");\nconst state = __webpack_require__(/*! ./state */ \"./src-client/state/index.ts\");\nmodule.exports = { $, state };\n\n\n//# sourceURL=webpack://Fuffle/./src-client/index.ts?");
-
-/***/ }),
-
-/***/ "./src-client/state/ArrayStateWrapper.ts":
-/*!***********************************************!*\
-  !*** ./src-client/state/ArrayStateWrapper.ts ***!
-  \***********************************************/
 /***/ ((module, exports, __webpack_require__) => {
 
-"use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nconst BaseStateWrapper = __webpack_require__(/*! ./BaseStateWrapper */ \"./src-client/state/BaseStateWrapper.ts\");\nconst ArrayElement = __webpack_require__(/*! ../ArrayElement */ \"./src-client/ArrayElement.ts\");\nclass ArrayStateWrapper extends BaseStateWrapper {\n    get length() {\n        return this.state.length;\n    }\n    map(renderItem) {\n        return new ArrayElement(this, renderItem);\n    }\n    push(item) {\n        this.state.push(item);\n        this.root.onSet([[...this.path, 'length']]);\n    }\n    pop() {\n        this.state.pop();\n        this.root.onSet([[...this.path, 'length']]);\n    }\n}\nmodule.exports = ArrayStateWrapper;\n\n\n//# sourceURL=webpack://Fuffle/./src-client/state/ArrayStateWrapper.ts?");
-
-/***/ }),
-
-/***/ "./src-client/state/BaseStateWrapper.ts":
-/*!**********************************************!*\
-  !*** ./src-client/state/BaseStateWrapper.ts ***!
-  \**********************************************/
-/***/ ((module, exports, __webpack_require__) => {
-
-"use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nlet ArrayStateWrapper;\nlet ObjectStateWrapper;\nclass BaseStateWrapper {\n    state;\n    root;\n    path;\n    constructor(state, root = null, path = []) {\n        this.state = state;\n        this.root = root;\n        this.path = path;\n    }\n    getChild(key) {\n        const child = this.state[key];\n        if (Array.isArray(child))\n            return new ArrayStateWrapper(child, this.root, [...this.path, key]);\n        if (typeof child === 'object' && child !== null && child !== undefined)\n            return new ObjectStateWrapper(child, this.root, [...this.path, key]);\n        return child;\n    }\n    update(key, value) {\n        this.state[key] = value;\n        this.root.onSet([[...this.path, key]]);\n    }\n}\nmodule.exports = BaseStateWrapper;\nArrayStateWrapper = __webpack_require__(/*! ./ArrayStateWrapper */ \"./src-client/state/ArrayStateWrapper.ts\");\nObjectStateWrapper = __webpack_require__(/*! ./ObjectStateWrapper */ \"./src-client/state/ObjectStateWrapper.ts\");\n\n\n//# sourceURL=webpack://Fuffle/./src-client/state/BaseStateWrapper.ts?");
-
-/***/ }),
-
-/***/ "./src-client/state/Binding.ts":
-/*!*************************************!*\
-  !*** ./src-client/state/Binding.ts ***!
-  \*************************************/
-/***/ ((module, exports) => {
-
-"use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nclass Binding {\n    listener;\n    dependencies;\n    constructor(listener, dependencies) {\n        this.listener = listener;\n        this.dependencies = dependencies;\n    }\n}\nmodule.exports = Binding;\n\n\n//# sourceURL=webpack://Fuffle/./src-client/state/Binding.ts?");
-
-/***/ }),
-
-/***/ "./src-client/state/Cursor.ts":
-/*!************************************!*\
-  !*** ./src-client/state/Cursor.ts ***!
-  \************************************/
-/***/ ((module, exports) => {
-
-"use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nclass StateCursor {\n    state;\n    path;\n    proxy;\n    #dependencies = [];\n    constructor(state, path) {\n        this.state = state;\n        this.path = path;\n        if (typeof state === 'object' && state !== null && state !== undefined) {\n            this.proxy = new Proxy(state, {\n                get: (target, key, receiver) => {\n                    if (typeof key === 'symbol')\n                        return Reflect.get(target, key, receiver);\n                    return this.getChild(key).proxy;\n                }\n            });\n        }\n        else {\n            this.proxy = null;\n        }\n    }\n    getChild(key) {\n        return new StateCursor(this.state[key], [...this.path, key]);\n    }\n    resolve(proxyValue) {\n        const cursor = proxyValue;\n        this.#dependencies.push(cursor.path);\n        return cursor.state;\n    }\n    getDependencies() {\n        return [...this.#dependencies];\n    }\n    resetDependencies() {\n        this.#dependencies = [];\n    }\n}\nmodule.exports = StateCursor;\n\n\n//# sourceURL=webpack://Fuffle/./src-client/state/Cursor.ts?");
-
-/***/ }),
-
-/***/ "./src-client/state/ObjectStateWrapper.ts":
-/*!************************************************!*\
-  !*** ./src-client/state/ObjectStateWrapper.ts ***!
-  \************************************************/
-/***/ ((module, exports, __webpack_require__) => {
-
-"use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nconst BaseStateWrapper = __webpack_require__(/*! ./BaseStateWrapper */ \"./src-client/state/BaseStateWrapper.ts\");\nconst Binding = __webpack_require__(/*! ./Binding */ \"./src-client/state/Binding.ts\");\nconst StateCursor = __webpack_require__(/*! ./Cursor */ \"./src-client/state/Cursor.ts\");\nclass ObjectStateWrapper extends BaseStateWrapper {\n    read(key, listener) {\n        this.root.bindings.push(new Binding(() => {\n            listener(this.state[key]);\n        }, [[...this.path, key]]));\n        listener(this.state[key]);\n    }\n    read2(listener) {\n        const cursor = new StateCursor(this.state, []);\n        listener(cursor.proxy, cursor);\n        const binding = new Binding(() => {\n            cursor.resetDependencies();\n            listener(cursor.proxy, cursor);\n            binding.dependencies = cursor.getDependencies();\n        }, cursor.getDependencies());\n        this.root.bindings.push(binding);\n    }\n    text(key) {\n        const node = document.createTextNode('');\n        this.read(key, (value) => {\n            if (typeof value === 'string')\n                node.nodeValue = value;\n            else if (typeof value === 'number')\n                node.nodeValue = String(value);\n            else\n                node.nodeValue = '';\n        });\n        return node;\n    }\n    text2(getText) {\n        const node = document.createTextNode('');\n        this.read2((state, cursor) => {\n            node.nodeValue = getText(state, cursor);\n        });\n        return node;\n    }\n}\nmodule.exports = ObjectStateWrapper;\n\n\n//# sourceURL=webpack://Fuffle/./src-client/state/ObjectStateWrapper.ts?");
-
-/***/ }),
-
-/***/ "./src-client/state/RootStateWrapper.ts":
-/*!**********************************************!*\
-  !*** ./src-client/state/RootStateWrapper.ts ***!
-  \**********************************************/
-/***/ ((module, exports, __webpack_require__) => {
-
-"use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nconst ArrayStateWrapper = __webpack_require__(/*! ./ArrayStateWrapper */ \"./src-client/state/ArrayStateWrapper.ts\");\nconst { compareStatePaths } = __webpack_require__(/*! ./util */ \"./src-client/state/util.ts\");\nconst ObjectStateWrapper = __webpack_require__(/*! ./ObjectStateWrapper */ \"./src-client/state/ObjectStateWrapper.ts\");\nconst BaseStateWrapper = __webpack_require__(/*! ./BaseStateWrapper */ \"./src-client/state/BaseStateWrapper.ts\");\nclass RootStateWrapper extends BaseStateWrapper {\n    bindings = [];\n    constructor(state) {\n        super(state);\n    }\n    get length() {\n        return this.#asArray().length;\n    }\n    onSet(paths) {\n        for (const binding of this.bindings) {\n            if (binding.dependencies.some(dependency => paths.some(path => compareStatePaths(path, dependency))))\n                binding.listener();\n        }\n    }\n    map(renderItem) {\n        return this.#asArray().map(renderItem);\n    }\n    push(item) {\n        this.#asArray().push(item);\n    }\n    text2(getText) {\n        return this.#asObject().text2(getText);\n    }\n    pop() {\n        this.#asArray().pop();\n    }\n    getChild(key) {\n        return this.#asObject().getChild(key);\n    }\n    #asObject() {\n        const { state } = this;\n        if (typeof state !== 'object' ||\n            state === null ||\n            state === undefined)\n            throw new Error('Expected state to be an object');\n        return new ObjectStateWrapper(state, this, []);\n    }\n    #asArray() {\n        const { state } = this;\n        if (!Array.isArray(state))\n            throw new Error('Expected state to be an array');\n        return new ArrayStateWrapper(state, this, []);\n    }\n}\nmodule.exports = RootStateWrapper;\n\n\n//# sourceURL=webpack://Fuffle/./src-client/state/RootStateWrapper.ts?");
-
-/***/ }),
-
-/***/ "./src-client/state/index.ts":
-/*!***********************************!*\
-  !*** ./src-client/state/index.ts ***!
-  \***********************************/
-/***/ ((module, exports, __webpack_require__) => {
-
-"use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nconst RootStateWrapper = __webpack_require__(/*! ./RootStateWrapper */ \"./src-client/state/RootStateWrapper.ts\");\nmodule.exports = function state(value) {\n    return new RootStateWrapper(value);\n};\n\n\n//# sourceURL=webpack://Fuffle/./src-client/state/index.ts?");
-
-/***/ }),
-
-/***/ "./src-client/state/util.ts":
-/*!**********************************!*\
-  !*** ./src-client/state/util.ts ***!
-  \**********************************/
-/***/ ((module, exports) => {
-
-"use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nmodule.exports = {\n    compareStatePaths(path1, path2) {\n        const commonLength = Math.min(path1.length, path2.length);\n        for (let i = 0; i < commonLength; i++)\n            if (path1[i] !== path2[i])\n                return false;\n        return true;\n    }\n};\n\n\n//# sourceURL=webpack://Fuffle/./src-client/state/util.ts?");
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nlet StateWrapper;\nlet FuffleIfElement;\nlet FuffleArrayElement;\nlet IfUtil;\nlet $;\n$ = __webpack_require__(/*! ./$ */ \"./src-client/$.ts\");\nclass BoundDomUtil extends $ {\n    bindAttr(name, stateProxy) {\n    }\n}\nmodule.exports = {\n    $,\n    state(value) {\n        return new StateWrapper(value, null, null).proxy;\n    },\n    if(stateProxy, render) {\n        return new IfUtil(new FuffleIfElement(stateProxy(), render));\n    },\n    set(stateProxy, value) {\n        stateProxy().set(value);\n    },\n    setter(stateProxy, getValue) {\n        const stateWrapper = stateProxy();\n        stateWrapper.set(getValue(stateWrapper.state));\n    },\n    map(stateProxy, render) {\n        return new FuffleArrayElement(stateProxy(), render);\n    },\n    push(stateProxy, it) {\n        stateProxy().push(it);\n    },\n    pop(stateProxy) {\n        return stateProxy().pop();\n    },\n    text(stateProxy) {\n        const node = document.createTextNode('');\n        stateProxy().bind(state => {\n            if (typeof state === 'string')\n                node.nodeValue = state;\n            else if (typeof state === 'number')\n                node.nodeValue = String(state);\n            else\n                node.nodeValue = '';\n        });\n        return node;\n    }\n};\nStateWrapper = __webpack_require__(/*! ./StateWrapper */ \"./src-client/StateWrapper.ts\");\nFuffleIfElement = __webpack_require__(/*! ./IfElement */ \"./src-client/IfElement.ts\");\nFuffleArrayElement = __webpack_require__(/*! ./ArrayElement */ \"./src-client/ArrayElement.ts\");\nIfUtil = __webpack_require__(/*! ./IfUtil */ \"./src-client/IfUtil.ts\");\n\n\n//# sourceURL=webpack://Fuffle/./src-client/index.ts?");
 
 /***/ })
 
